@@ -60,8 +60,9 @@ while [[ $download_count -lt $needed ]]; do
     
     # Extract image URLs from JSON response  
     # Wallhaven API returns: {"data": [{"path": "https://...", ...}, ...]}
-    # The path field contains URLs like: https://w.wallhaven.cc/full/k8/wallhaven-k881zd.jpg
-    mapfile -t image_urls < <(grep -oP '"path":"\K[^"]+' "$response_file" | grep -v '^\/\/' || true)
+    # The path field contains URLs like: https:\/\/w.wallhaven.cc\/full\/k8\/wallhaven-k881zd.jpg
+    # Need to unescape the backslashes
+    mapfile -t image_urls < <(grep -oP '"path":"\K[^"]+' "$response_file" | sed 's/\\//g' || true)
     
     if [[ ${#image_urls[@]} -eq 0 ]]; then
         echo "  No more images available"
