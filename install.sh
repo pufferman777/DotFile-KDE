@@ -14,13 +14,47 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Defaults
+APPS_ONLY=0
+DO_CONFIGS=1
+DO_DCONF=1
+DO_AUTOSTART=1
+
 print_step() {
     echo -e "${GREEN}==>${NC} $1"
+}
+
+print_skip() {
+    echo -e "${YELLOW}==> Skipping:${NC} $1"
 }
 
 print_warning() {
     echo -e "${YELLOW}Warning:${NC} $1"
 }
+
+# Arg parsing
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --apps-only)
+      APPS_ONLY=1
+      DO_CONFIGS=0
+      DO_DCONF=0
+      DO_AUTOSTART=0
+      shift
+      ;;
+    --with-configs)
+      APPS_ONLY=0
+      DO_CONFIGS=1
+      DO_DCONF=1
+      DO_AUTOSTART=1
+      shift
+      ;;
+    *)
+      print_warning "Unknown option: $1 (ignored)"
+      shift
+      ;;
+  esac
+done
 
 # Check if running as root
 if [ "$EUID" -eq 0 ]; then
@@ -234,6 +268,7 @@ fi
 # ============================================
 # STEP 10: Copy Configurations
 # ============================================
+if [ "$DO_CONFIGS" -eq 1 ]; then
 print_step "Step 10/12: Copying configurations..."
 
 # App configs
@@ -251,20 +286,28 @@ fi
 [ -f "$DOTFILES_DIR/configs/.bashrc" ] && cp "$DOTFILES_DIR/configs/.bashrc" ~/
 [ -f "$DOTFILES_DIR/configs/.bash_profile" ] && cp "$DOTFILES_DIR/configs/.bash_profile" ~/
 [ -f "$DOTFILES_DIR/configs/.gtkrc-2.0" ] && cp "$DOTFILES_DIR/configs/.gtkrc-2.0" ~/
+else
+print_skip "Step 10/12: Copying configurations (--apps-only)"
+fi
 
 # ============================================
 # STEP 11: Apply Cinnamon Settings
 # ============================================
+if [ "$DO_DCONF" -eq 1 ]; then
 print_step "Step 11/12: Applying desktop settings..."
 
 if [ -f "$DOTFILES_DIR/configs/full-dconf.txt" ]; then
     # Replace old home path with current user's home and load. Some keys may be non-writable; ignore and continue.
     sed "s|/home/testbug|$HOME|g" "$DOTFILES_DIR/configs/full-dconf.txt" | dconf load / || print_warning "Some desktop settings were skipped due to non-writable keys; continuing."
 fi
+else
+print_skip "Step 11/12: Applying desktop settings (--apps-only)"
+fi
 
 # ============================================
 # STEP 12: Setup Autostart
 # ============================================
+if [ "$DO_AUTOSTART" -eq 1 ]; then
 print_step "Step 12/12: Setting up autostart apps..."
 
 mkdir -p ~/.config/autostart
@@ -287,6 +330,9 @@ Exec=numlockx on
 X-GNOME-Autostart-enabled=true
 NoDisplay=true
 EOF
+else
+print_skip "Step 12/12: Setting up autostart apps (--apps-only)"
+fi
 
 # ============================================
 # DONE
