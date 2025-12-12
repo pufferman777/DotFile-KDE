@@ -104,8 +104,20 @@ print_step "Step 4/10: Installing Snap apps (TradingView)..."
 sudo dnf install -y snapd
 sudo ln -sf /var/lib/snapd/snap /snap 2>/dev/null || true
 sudo systemctl enable --now snapd.socket
-sleep 5
-sudo snap install tradingview 2>/dev/null || print_warning "TradingView snap install failed - try manually after reboot"
+
+# Wait for snapd to be ready (with retries)
+echo "  Waiting for snapd to initialize..."
+for i in {1..30}; do
+    if sudo snap list &>/dev/null; then
+        break
+    fi
+    sleep 1
+done
+
+# Install TradingView
+if ! sudo snap install tradingview 2>/dev/null; then
+    print_warning "TradingView snap install failed. After reboot, run: sudo snap install tradingview"
+fi
 
 # ============================================
 # STEP 5: Install PyCharm Pro
