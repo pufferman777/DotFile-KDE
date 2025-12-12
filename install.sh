@@ -85,6 +85,12 @@ fi
 # Install Dropbox
 sudo dnf install -y dropbox nautilus-dropbox 2>/dev/null || true
 
+# Conditionally install NVIDIA 32-bit userspace if NVIDIA driver is present
+if command -v nvidia-smi &>/dev/null || rpm -q akmod-nvidia &>/dev/null || rpm -q xorg-x11-drv-nvidia &>/dev/null; then
+  print_step "NVIDIA detected: installing 32-bit userspace libs..."
+  sudo dnf install -y --skip-broken --skip-unavailable xorg-x11-drv-nvidia-libs.i686 cuda-libs.i686 2>/dev/null || true
+fi
+
 # ============================================
 # STEP 3: Install Flatpak Apps
 # ============================================
@@ -95,6 +101,9 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 
 flatpak install -y flathub com.tencent.WeChat 2>/dev/null || true
 flatpak install -y flathub com.discordapp.Discord 2>/dev/null || true
+# Gaming helpers
+flatpak install -y flathub net.davidotek.pupgui2 2>/dev/null || true
+flatpak install -y flathub com.heroicgameslauncher.hgl 2>/dev/null || true
 
 # ============================================
 # STEP 4: Install Snap Apps

@@ -44,6 +44,32 @@ rclone
 # Gaming
 wine
 lutris
+gamemode
+mangohud
+gamescope
+protontricks
+vkBasalt
+
+# 32-bit compatibility for Wine/Proton
+alsa-lib.i686
+pipewire-libs.i686
+pulseaudio-libs.i686
+libXcursor.i686
+libXi.i686
+libXrandr.i686
+libXinerama.i686
+SDL2.i686
+freetype.i686
+libpng.i686
+curl.i686
+gnutls.i686
+zlib.i686
+mesa-vulkan-drivers.i686
+mesa-dri-drivers.i686
+vulkan-loader.i686
+mesa-libGLU.i686
+openal-soft.i686
+dbus-glib.i686
 
 # Theme dependencies
 gtk-murrine-engine
