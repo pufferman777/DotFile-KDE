@@ -18,11 +18,6 @@ cd ~/dotfiles
 
 Then log out and log back in.
 
-Optional: promote 2K+ wallpapers to system backgrounds so they appear in the Backgrounds picker:
-```bash
-./install.sh --promote-wallpapers
-```
-
 ## What's Included
 
 ### Apps & Packages
@@ -53,9 +48,8 @@ Optional: promote 2K+ wallpapers to system backgrounds so they appear in the Bac
 ## Manual Steps After Install
 
 1. **Log out and log back in** (required for all changes to take effect)
-2. **GPU Drivers** (hardware-specific):
-   - NVIDIA: `sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda`
-   - AMD: `sudo dnf install rocm-smi`
+2. **GPU Drivers**: Automatically detected and installed (NVIDIA/AMD)
+   - If you have Secure Boot enabled with NVIDIA, you'll need to enroll the MOK key on reboot
 3. **Sign in to apps**: Steam, Discord, WeChat, Dropbox
 4. **Activate PyCharm Pro license**
 5. **Run Battle.net**: `lutris` or `wine ~/Downloads/Battle.net-Setup.exe`

@@ -10,10 +10,8 @@ Personal dotfiles for Fedora Cinnamon desktop environment. The repository bootst
 
 ```bash
 # Full system bootstrap (on fresh Fedora install)
+# Includes automatic GPU driver detection/installation and wallpaper promotion
 ./install.sh
-
-# Promote 2K+ wallpapers to /usr/share/backgrounds/custom (optional)
-./install.sh --promote-wallpapers
 
 # Export current dconf settings to file
 dconf dump / > configs/full-dconf.txt
@@ -34,7 +32,7 @@ grep -v '^#' packages.txt | grep -v '^$' | xargs sudo dnf install -y
 
 ## Architecture Notes
 
-**Safe-Only Design**: This repo intentionally excludes hardware-specific configs (GPU drivers, monitor layouts, Cinnamon applet states) to ensure it works on any Fedora Cinnamon system. User-specific configs (browser profiles, app settings) are also excluded.
+**Safe-Only Design**: This repo automatically detects and installs GPU drivers (NVIDIA/AMD), but intentionally excludes other hardware-specific configs (monitor layouts, Cinnamon applet states) to ensure it works on any Fedora Cinnamon system. User-specific configs (browser profiles, app settings) are also excluded.
 
 **Keyboard Shortcuts**: Only keyboard bindings are versioned (`configs/keyboard-shortcuts.dconf`). They're applied via `dconf load /org/cinnamon/desktop/keybindings/`.
 
@@ -60,9 +58,8 @@ The install script uses multiple package managers:
 ## Post-Install Manual Steps
 
 - **Log out and log back in** (required)
-- **GPU drivers** (hardware-specific):
-  - NVIDIA: `sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda`
-  - AMD: `sudo dnf install rocm-smi`
+- **GPU drivers**: Automatically installed (NVIDIA/AMD detected via lspci)
+  - If Secure Boot is enabled with NVIDIA, enroll MOK key on reboot
 - Run Battle.net: `lutris` or `wine ~/Downloads/Battle.net-Setup.exe`
 - Log into Dropbox, Steam, Discord, WeChat
 - Activate PyCharm license
