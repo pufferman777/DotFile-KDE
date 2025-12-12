@@ -361,8 +361,16 @@ if [ -d "$DOTFILES_DIR/themes" ]; then
     cp -r "$DOTFILES_DIR/themes/"* ~/.themes/
 fi
 
-# Promote wallpapers to system folder
-echo "  Promoting wallpapers to system folder..."
+# Download wallpapers from Unsplash (124 high-quality 2K+ images)
+echo "  Downloading wallpapers from Unsplash..."
+if [ -f "$DOTFILES_DIR/scripts/download-wallpapers.sh" ]; then
+    "$DOTFILES_DIR/scripts/download-wallpapers.sh" || print_warning "Wallpaper download failed"
+else
+    print_warning "Wallpaper download script not found"
+fi
+
+# Promote any additional wallpapers from user's Pictures folder
+echo "  Promoting wallpapers from Pictures folder..."
 if [ -f "$DOTFILES_DIR/scripts/promote-wallpapers.sh" ]; then
     "$DOTFILES_DIR/scripts/promote-wallpapers.sh" --min-width 2560 || print_warning "Wallpaper promotion failed"
 else
