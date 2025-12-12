@@ -7,7 +7,8 @@ My personal Fedora Cinnamon setup with custom themes, icons, and configurations.
 On a fresh Fedora Cinnamon installation, run:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
+sudo dnf install -y git
+git clone https://github.com/pufferman777/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh
 ```
