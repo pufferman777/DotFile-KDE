@@ -150,6 +150,7 @@ if [ ! -d "$PYCHARM_DIR" ]; then
     rm pycharm.tar.gz
     
     # Create desktop entry
+    mkdir -p ~/.local/share/applications
     cat > ~/.local/share/applications/pycharm.desktop << EOF
 [Desktop Entry]
 Version=1.0
