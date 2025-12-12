@@ -28,6 +28,14 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
+# Parse flags (currently only --promote-wallpapers)
+PROMOTE_WALLPAPERS=0
+for arg in "$@"; do
+  case "$arg" in
+    --promote-wallpapers) PROMOTE_WALLPAPERS=1 ;;
+  esac
+done
+
 # ============================================
 # STEP 1: Setup Repositories
 # ============================================
@@ -309,6 +317,11 @@ print_step "Step 10/10: Applying keyboard shortcuts..."
 if [ -f "$DOTFILES_DIR/configs/keyboard-shortcuts.dconf" ]; then
     dconf load /org/cinnamon/desktop/keybindings/ < "$DOTFILES_DIR/configs/keyboard-shortcuts.dconf" || \
         print_warning "Could not apply keyboard shortcuts; you may need to set them manually."
+fi
+
+# Optional: promote wallpapers to system folder when requested
+if [[ "${PROMOTE_WALLPAPERS:-0}" -eq 1 ]]; then
+    "$DOTFILES_DIR/scripts/promote-wallpapers.sh" --min-width 2560 || print_warning "Wallpaper promotion failed"
 fi
 
 # Setup autostart

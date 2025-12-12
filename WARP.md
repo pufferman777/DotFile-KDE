@@ -12,6 +12,9 @@ Personal dotfiles for Fedora Cinnamon desktop environment. The repository bootst
 # Full system bootstrap (on fresh Fedora install)
 ./install.sh
 
+# Promote 2K+ wallpapers to /usr/share/backgrounds/custom (optional)
+./install.sh --promote-wallpapers
+
 # Export current dconf settings to file
 dconf dump / > configs/full-dconf.txt
 

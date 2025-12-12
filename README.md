@@ -18,6 +18,11 @@ cd ~/dotfiles
 
 Then log out and log back in.
 
+Optional: promote 2K+ wallpapers to system backgrounds so they appear in the Backgrounds picker:
+```bash
+./install.sh --promote-wallpapers
+```
+
 ## What's Included
 
 ### Apps & Packages
