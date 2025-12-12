@@ -213,90 +213,114 @@ cd /tmp
 # Tela Circle (all colors)
 if [ ! -d ~/.local/share/icons/Tela-circle-purple-dark ]; then
     echo "  Installing Tela Circle icons (all colors)..."
-    git clone --depth 1 https://github.com/vinceliuice/Tela-circle-icon-theme.git
-    cd Tela-circle-icon-theme
-    ./install.sh
-    cd /tmp
-    rm -rf Tela-circle-icon-theme
+    if git clone --depth 1 https://github.com/vinceliuice/Tela-circle-icon-theme.git; then
+        cd Tela-circle-icon-theme
+        ./install.sh || print_warning "Failed to install Tela Circle icons"
+        cd /tmp
+        rm -rf Tela-circle-icon-theme
+    else
+        print_warning "Failed to clone Tela Circle icons repository"
+    fi
 fi
 
 # Papirus (includes Dark, Light variants)
 if [ ! -d ~/.local/share/icons/Papirus ]; then
     echo "  Installing Papirus icons..."
-    wget -qO- https://git.io/papirus-icon-theme-install | sh
+    wget -qO- https://git.io/papirus-icon-theme-install | sh || print_warning "Failed to install Papirus icons"
 fi
 
 # Colloid (Purple, Teal, Yellow - all variants)
 if [ ! -d ~/.local/share/icons/Colloid-Purple ]; then
     echo "  Installing Colloid icons..."
-    git clone --depth 1 https://github.com/vinceliuice/Colloid-icon-theme.git
-    cd Colloid-icon-theme
-    ./install.sh -t all
-    cd /tmp
-    rm -rf Colloid-icon-theme
+    if git clone --depth 1 https://github.com/vinceliuice/Colloid-icon-theme.git; then
+        cd Colloid-icon-theme
+        ./install.sh -t all || print_warning "Failed to install Colloid icons"
+        cd /tmp
+        rm -rf Colloid-icon-theme
+    else
+        print_warning "Failed to clone Colloid icons repository"
+    fi
 fi
 
 # Flat-Remix (all colors)
 if [ ! -d ~/.local/share/icons/Flat-Remix-Blue-Dark ]; then
     echo "  Installing Flat-Remix icons..."
-    git clone --depth 1 https://github.com/daniruiz/flat-remix.git
-    cd flat-remix
-    mkdir -p ~/.local/share/icons
-    cp -r Flat-Remix-* ~/.local/share/icons/
-    cd /tmp
-    rm -rf flat-remix
+    if git clone --depth 1 https://github.com/daniruiz/flat-remix.git; then
+        cd flat-remix
+        mkdir -p ~/.local/share/icons
+        cp -r Flat-Remix-* ~/.local/share/icons/ 2>/dev/null || print_warning "Failed to copy Flat-Remix icons"
+        cd /tmp
+        rm -rf flat-remix
+    else
+        print_warning "Failed to clone Flat-Remix icons repository"
+    fi
 fi
 
 # McMojave Circle (all colors)
 if [ ! -d ~/.local/share/icons/McMojave-circle-purple ]; then
     echo "  Installing McMojave Circle icons..."
-    git clone --depth 1 https://github.com/vinceliuice/McMojave-circle.git
-    cd McMojave-circle
-    ./install.sh
-    cd /tmp
-    rm -rf McMojave-circle
+    if git clone --depth 1 https://github.com/vinceliuice/McMojave-circle.git; then
+        cd McMojave-circle
+        ./install.sh || print_warning "Failed to install McMojave Circle icons"
+        cd /tmp
+        rm -rf McMojave-circle
+    else
+        print_warning "Failed to clone McMojave Circle icons repository"
+    fi
 fi
 
 # WhiteSur (all colors)
 if [ ! -d ~/.local/share/icons/WhiteSur-purple ]; then
     echo "  Installing WhiteSur icons..."
-    git clone --depth 1 https://github.com/vinceliuice/WhiteSur-icon-theme.git
-    cd WhiteSur-icon-theme
-    ./install.sh -a
-    cd /tmp
-    rm -rf WhiteSur-icon-theme
+    if git clone --depth 1 https://github.com/vinceliuice/WhiteSur-icon-theme.git; then
+        cd WhiteSur-icon-theme
+        ./install.sh -a || print_warning "Failed to install WhiteSur icons"
+        cd /tmp
+        rm -rf WhiteSur-icon-theme
+    else
+        print_warning "Failed to clone WhiteSur icons repository"
+    fi
 fi
 
 # Inverse (orange)
 if [ ! -d ~/.local/share/icons/Inverse-orange ]; then
     echo "  Installing Inverse icons..."
-    git clone --depth 1 https://github.com/yeyushengfan258/Inverse-icon-theme.git
-    cd Inverse-icon-theme
-    ./install.sh -orange
-    cd /tmp
-    rm -rf Inverse-icon-theme
+    if git clone --depth 1 https://github.com/yeyushengfan258/Inverse-icon-theme.git; then
+        cd Inverse-icon-theme
+        ./install.sh -orange || print_warning "Failed to install Inverse icons"
+        cd /tmp
+        rm -rf Inverse-icon-theme
+    else
+        print_warning "Failed to clone Inverse icons repository"
+    fi
 fi
 
 # Oranchelo
 if [ ! -d ~/.local/share/icons/Oranchelo ]; then
     echo "  Installing Oranchelo icons..."
-    git clone --depth 1 https://github.com/OrancheloTeam/oranchelo-icon-theme.git
-    cd oranchelo-icon-theme
-    mkdir -p ~/.local/share/icons
-    cp -r Oranchelo ~/.local/share/icons/
-    cd /tmp
-    rm -rf oranchelo-icon-theme
+    if git clone --depth 1 https://github.com/OrancheloTeam/oranchelo-icon-theme.git; then
+        cd oranchelo-icon-theme
+        mkdir -p ~/.local/share/icons
+        cp -r Oranchelo ~/.local/share/icons/ 2>/dev/null || print_warning "Failed to copy Oranchelo icons"
+        cd /tmp
+        rm -rf oranchelo-icon-theme
+    else
+        print_warning "Failed to clone Oranchelo icons repository"
+    fi
 fi
 
 # Zafiro (Dark + Blue-f variants)
 if [ ! -d ~/.local/share/icons/Zafiro-Icons-Dark ]; then
     echo "  Installing Zafiro icons..."
-    git clone --depth 1 https://github.com/zayronxio/Zafiro-icons.git
-    cd Zafiro-icons
-    mkdir -p ~/.local/share/icons
-    cp -r Zafiro* ~/.local/share/icons/
-    cd /tmp
-    rm -rf Zafiro-icons
+    if git clone --depth 1 https://github.com/zayronxio/Zafiro-icons.git; then
+        cd Zafiro-icons
+        mkdir -p ~/.local/share/icons
+        cp -r Zafiro* ~/.local/share/icons/ 2>/dev/null || print_warning "Failed to copy Zafiro icons"
+        cd /tmp
+        rm -rf Zafiro-icons
+    else
+        print_warning "Failed to clone Zafiro icons repository"
+    fi
 fi
 
 # ============================================
