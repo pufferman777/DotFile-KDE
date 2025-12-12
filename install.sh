@@ -258,8 +258,8 @@ fi
 print_step "Step 11/12: Applying desktop settings..."
 
 if [ -f "$DOTFILES_DIR/configs/full-dconf.txt" ]; then
-    # Replace old home path with current user's home
-    sed "s|/home/testbug|$HOME|g" "$DOTFILES_DIR/configs/full-dconf.txt" | dconf load /
+    # Replace old home path with current user's home and load. Some keys may be non-writable; ignore and continue.
+    sed "s|/home/testbug|$HOME|g" "$DOTFILES_DIR/configs/full-dconf.txt" | dconf load / || print_warning "Some desktop settings were skipped due to non-writable keys; continuing."
 fi
 
 # ============================================
