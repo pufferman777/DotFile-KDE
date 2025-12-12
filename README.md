@@ -20,21 +20,23 @@ Then log out and log back in.
 
 ## What's Included
 
-### Packages
-- **Desktop**: Cinnamon, Plank dock, Slick Greeter
-- **Apps**: Brave Browser, Warp Terminal, Steam, Firefox, Thunderbird
-- **Media**: MPV, Transmission, Shotwell
-- **Productivity**: LibreOffice, Calculator, Screenshot tools
-- **Utilities**: neofetch, htop, powertop
+### Apps & Packages
+- **Desktop**: Plank dock, NumLockX
+- **Browsers**: Brave Browser
+- **Terminals**: Warp Terminal
+- **Gaming**: Steam, Lutris, Wine
+- **Flatpak**: WeChat, Discord
+- **Snap**: TradingView
+- **Dev Tools**: PyCharm Professional
+- **System**: auto-cpufreq, rclone, Dropbox, neofetch, htop, powertop
 
 ### Themes & Icons
-- GTK Theme: Mint-Y-Dark-Teal
-- Icons: Tela Circle Purple Dark
-- Custom themes: Adapta-Nokto, Carta, CBlue, Faded-Dream, Numix-Cinnamon-Transparent
+- **Icons**: Tela Circle Purple Dark, Papirus
+- **Themes**: Adapta-Nokto, Carta, CBlue, Faded-Dream, Numix-Cinnamon-Transparent
 
 ### Keyboard Shortcuts
 - `Ctrl+Alt+End` - Shutdown
-- `Ctrl+Alt+Home` - Suspend  
+- `Ctrl+Alt+Home` - Suspend
 - `Ctrl+Alt+Insert` - Reboot
 - `Ctrl+Shift+~` - Area screenshot to clipboard
 
@@ -44,10 +46,14 @@ Then log out and log back in.
 
 ## Manual Steps After Install
 
-1. Set your wallpaper
-2. Configure Brave Browser sync (if needed)
-3. Log into Steam
-4. Set up cloud storage (Dropbox, etc.)
+1. **Log out and log back in** (required for all changes to take effect)
+2. **GPU Drivers** (hardware-specific):
+   - NVIDIA: `sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda`
+   - AMD: `sudo dnf install rocm-smi`
+3. **Sign in to apps**: Steam, Discord, WeChat, Dropbox
+4. **Activate PyCharm Pro license**
+5. **Run Battle.net**: `lutris` or `wine ~/Downloads/Battle.net-Setup.exe`
+6. **Configure Cinnamon**: Add applets, set wallpaper, adjust monitor settings
 
 ## Updating
 

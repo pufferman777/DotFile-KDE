@@ -1,12 +1,13 @@
-# Browser profiles and caches (do not version)
-configs/dot-config/BraveSoftware/Brave-Browser/
-configs/dot-config/**/GPUCache/
-configs/dot-config/**/ShaderCache/
-configs/dot-config/**/Cache/
-configs/dot-config/**/Code Cache/
-configs/dot-config/**/Service Worker/
-configs/dot-config/**/IndexedDB/
-configs/dot-config/**/Local Storage/
+# Hardware-specific and user-specific configs (do not version)
+configs/dot-config/
+configs/dot-local-share/
+configs/full-dconf.txt
+
+# Keep only keyboard shortcuts
+!configs/keyboard-shortcuts.dconf
+
+# Backup/old files
+install-old.sh
 
 # OS/user clutter
 .DS_Store

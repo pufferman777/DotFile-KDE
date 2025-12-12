@@ -1,0 +1,21 @@
+[/]
+custom-list=['custom0', 'custom1', 'custom2']
+
+[custom-keybindings/custom0]
+binding=['<Primary><Alt>End']
+command='systemctl "poweroff"'
+name='poweroff'
+
+[custom-keybindings/custom1]
+binding=['<Primary><Alt>Home']
+command='systemctl "suspend"'
+name='suspend'
+
+[custom-keybindings/custom2]
+binding=['<Primary><Alt>Insert']
+command='systemctl "reboot"'
+name='reboot'
+
+[media-keys]
+area-screenshot-clip=['<Primary><Shift>asciitilde']
+shutdown=['XF86PowerOff']

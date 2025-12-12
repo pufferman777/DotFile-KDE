@@ -41,10 +41,6 @@ curl
 rsync
 rclone
 
-# GPU drivers & tools
-akmod-nvidia
-xorg-x11-drv-nvidia-cuda
-
 # Gaming
 wine
 lutris

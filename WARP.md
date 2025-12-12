@@ -24,31 +24,28 @@ grep -v '^#' packages.txt | grep -v '^$' | xargs sudo dnf install -y
 
 ## Repository Structure
 
-- `install.sh` - Main bootstrap script (12 steps: repos, packages, flatpak, snap, pycharm, auto-cpufreq, battle.net, icons, themes, configs, dconf, autostart)
+- `install.sh` - Main bootstrap script (10 steps: repos, packages, flatpak, snap, pycharm, auto-cpufreq, battle.net, icons, themes, keyboard shortcuts + autostart)
 - `packages.txt` - DNF packages to install (comments with `#`, one package per line)
-- `configs/dot-config/` - Maps to `~/.config/` (app configs for Plank, Cinnamon, Warp, Brave, etc.)
-- `configs/dot-local-share/` - Maps to `~/.local/share/` (Cinnamon applets, Nemo actions, Plank themes)
-- `configs/full-dconf.txt` - Complete dconf dump for Cinnamon desktop settings
+- `configs/keyboard-shortcuts.dconf` - Keyboard shortcuts only (safe to apply)
 - `themes/` - Custom GTK/Cinnamon themes (copied to `~/.themes/`)
-- `icons/` - Custom icon themes (copied to `~/.local/share/icons/`)
 
 ## Architecture Notes
 
-**Config Path Mapping**: The `configs/` directory uses a naming convention where `dot-config` → `~/.config` and `dot-local-share` → `~/.local/share`. The install script copies contents recursively.
+**Safe-Only Design**: This repo intentionally excludes hardware-specific configs (GPU drivers, monitor layouts, Cinnamon applet states) to ensure it works on any Fedora Cinnamon system. User-specific configs (browser profiles, app settings) are also excluded.
 
-**dconf Settings**: Cinnamon desktop settings (keyboard shortcuts, theme selections, panel configs) are stored in `configs/full-dconf.txt`. The install script replaces `/home/testbug` with the current user's `$HOME` before loading.
+**Keyboard Shortcuts**: Only keyboard bindings are versioned (`configs/keyboard-shortcuts.dconf`). They're applied via `dconf load /org/cinnamon/desktop/keybindings/`.
 
-**External Theme Installation**: Tela Circle icons and Papirus icons are cloned from GitHub during install (not stored in this repo). Custom themes in `themes/` are copied directly.
+**External Installs**: Tela Circle icons and Papirus icons are cloned from GitHub during install. PyCharm Pro is downloaded directly from JetBrains. Custom GTK themes in `themes/` are copied to `~/.themes/`.
 
 ## Installation Methods
 
 The install script uses multiple package managers:
 
-- **DNF**: Core packages, NVIDIA drivers, rclone, wine, lutris (from packages.txt + repos)
+- **DNF**: Core packages, rclone, wine, lutris, Dropbox (from packages.txt + repos)
 - **Flatpak**: WeChat (`com.tencent.WeChat`), Discord (`com.discordapp.Discord`)
 - **Snap**: TradingView
 - **Direct download**: PyCharm Pro (from JetBrains), Battle.net-Setup.exe
-- **GitHub install**: auto-cpufreq (cloned and installed via its installer)
+- **GitHub install**: auto-cpufreq (cloned and installed via its installer), Tela Circle icons, Papirus icons
 
 ## Repos Added by install.sh
 
@@ -56,10 +53,14 @@ The install script uses multiple package managers:
 - Brave Browser
 - Warp Terminal
 - Dropbox
-- ROCm (for AMD GPU tools)
 
 ## Post-Install Manual Steps
 
+- **Log out and log back in** (required)
+- **GPU drivers** (hardware-specific):
+  - NVIDIA: `sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda`
+  - AMD: `sudo dnf install rocm-smi`
 - Run Battle.net: `lutris` or `wine ~/Downloads/Battle.net-Setup.exe`
 - Log into Dropbox, Steam, Discord, WeChat
-- Activate PyCharm license on first run
+- Activate PyCharm license
+- Configure Cinnamon: add applets, set wallpaper, adjust monitor settings
