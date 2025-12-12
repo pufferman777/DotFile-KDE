@@ -35,7 +35,7 @@ xed
 neofetch
 htop
 powertop
-git-core
+git
 wget
 curl
 rsync

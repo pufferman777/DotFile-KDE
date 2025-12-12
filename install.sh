@@ -86,8 +86,12 @@ print_step "Step 2/12: Installing packages (this takes a while)..."
 
 # Filter comments and empty lines, then install (skip unavailable and keep going)
 mapfile -t PKGS < <(grep -v '^#' "$DOTFILES_DIR/packages.txt" | grep -v '^$')
-if ! sudo dnf install -y --allowerasing --skip-broken --setopt=skip_unavailable=True "${PKGS[@]}"; then
-    print_warning "Some packages were unavailable or already installed; continuing."
+# Try a single bulk install first (fast path). If it fails, fall back to per-package installs.
+if ! sudo dnf install -y --allowerasing --skip-broken --skip-unavailable "${PKGS[@]}"; then
+    print_warning "Bulk install failed; retrying per-package to skip offenders..."
+    for p in "${PKGS[@]}"; do
+        sudo dnf install -y --allowerasing --skip-broken --skip-unavailable "$p" || print_warning "Skipped: $p"
+    done
 fi
 
 # Install Dropbox
