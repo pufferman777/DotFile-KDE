@@ -7,6 +7,7 @@ echo "============================================"
 echo ""
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPLETION_MARKER="$HOME/.config/dotfiles-install-complete"
 
 # Colors
 GREEN='\033[0;32m'
@@ -233,10 +234,13 @@ fi
 # ============================================
 # STEP 8: Install Icon Themes
 # ============================================
-print_step "Step 8/10: Installing icon themes..."
-
-mkdir -p ~/.local/share/icons
-cd /tmp
+if grep -q "^icons_installed$" "$COMPLETION_MARKER" 2>/dev/null; then
+    print_step "Step 8/10: Icon themes already installed (skipping)..."
+else
+    print_step "Step 8/10: Installing icon themes..."
+    
+    mkdir -p ~/.local/share/icons
+    cd /tmp
 
 # Tela Circle (all colors)
 if [ ! -d ~/.local/share/icons/Tela-circle-purple-dark ]; then
@@ -351,14 +355,36 @@ if [ ! -d ~/.local/share/icons/Zafiro-Icons-Dark ]; then
     fi
 fi
 
+    # Mark icons as installed
+    mkdir -p "$(dirname "$COMPLETION_MARKER")"
+    echo "icons_installed" >> "$COMPLETION_MARKER"
+fi
+
 # ============================================
 # STEP 9: Install GTK Themes & Wallpapers
 # ============================================
 print_step "Step 9/10: Installing GTK themes and wallpapers..."
 
 mkdir -p ~/.themes
+
+# Install GTK themes (skip if already present)
 if [ -d "$DOTFILES_DIR/themes" ]; then
-    cp -r "$DOTFILES_DIR/themes/"* ~/.themes/
+    themes_to_install=()
+    for theme in "$DOTFILES_DIR/themes/"*; do
+        theme_name=$(basename "$theme")
+        if [ ! -d ~/.themes/"$theme_name" ]; then
+            themes_to_install+=("$theme_name")
+        fi
+    done
+    
+    if [ ${#themes_to_install[@]} -gt 0 ]; then
+        echo "  Installing ${#themes_to_install[@]} GTK themes..."
+        for theme_name in "${themes_to_install[@]}"; do
+            cp -r "$DOTFILES_DIR/themes/$theme_name" ~/.themes/
+        done
+    else
+        echo "  All GTK themes already installed"
+    fi
 fi
 
 # Download wallpapers from Unsplash (124 high-quality 2K+ images)
