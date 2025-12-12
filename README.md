@@ -25,7 +25,7 @@ Then log out and log back in.
 - **Browsers**: Brave Browser
 - **Terminals**: Warp Terminal
 - **Gaming**: Steam, Lutris, Wine
-- **Flatpak**: WeChat, Discord
+- **Flatpak**: WeChat, Discord, Obsidian, Joplin
 - **Snap**: TradingView
 - **Dev Tools**: PyCharm Professional
 - **System**: auto-cpufreq, rclone, Dropbox, neofetch, htop, powertop

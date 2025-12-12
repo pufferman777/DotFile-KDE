@@ -104,6 +104,9 @@ flatpak install -y flathub com.discordapp.Discord 2>/dev/null || true
 # Gaming helpers
 flatpak install -y flathub net.davidotek.pupgui2 2>/dev/null || true
 flatpak install -y flathub com.heroicgameslauncher.hgl 2>/dev/null || true
+# Notes/PKM
+flatpak install -y flathub md.obsidian.Obsidian 2>/dev/null || true
+flatpak install -y flathub net.cozic.joplin_desktop 2>/dev/null || true
 
 # ============================================
 # STEP 4: Install Snap Apps
