@@ -30,9 +30,10 @@ Then log out and log back in.
 - **Dev Tools**: PyCharm Professional
 - **System**: auto-cpufreq, rclone, Dropbox, neofetch, htop, powertop
 
-### Themes & Icons
-- **Icons**: Tela Circle Purple Dark, Papirus
+### Themes & Icons and Wallpapers
+- **Icons**: Tela Circle Purple Dark, Papirus (plus full color sets for WhiteSur, Colloid, Flat-Remix, McMojave, Inverse, Oranchelo, Zafiro)
 - **Themes**: Adapta-Nokto, Carta, CBlue, Faded-Dream, Numix-Cinnamon-Transparent
+- **Wallpapers**: Variety (auto-download/rotate), Fondo (search/download), Hydrapaper (per‑monitor)
 
 ### Keyboard Shortcuts
 - `Ctrl+Alt+End` - Shutdown

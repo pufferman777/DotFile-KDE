@@ -107,6 +107,9 @@ flatpak install -y flathub com.heroicgameslauncher.hgl 2>/dev/null || true
 # Notes/PKM
 flatpak install -y flathub md.obsidian.Obsidian 2>/dev/null || true
 flatpak install -y flathub net.cozic.joplin_desktop 2>/dev/null || true
+# Wallpaper tools
+flatpak install -y flathub com.github.calo001.fondo 2>/dev/null || true
+flatpak install -y flathub org.gabmus.hydrapaper 2>/dev/null || true
 
 # ============================================
 # STEP 4: Install Snap Apps

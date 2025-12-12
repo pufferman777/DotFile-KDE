@@ -35,6 +35,7 @@ xed
 neofetch
 htop
 powertop
+variety
 git
 wget
 curl
