@@ -93,10 +93,45 @@ fi
 # Install Dropbox
 sudo dnf install -y dropbox nautilus-dropbox 2>/dev/null || true
 
-# Conditionally install NVIDIA 32-bit userspace if NVIDIA driver is present
-if command -v nvidia-smi &>/dev/null || rpm -q akmod-nvidia &>/dev/null || rpm -q xorg-x11-drv-nvidia &>/dev/null; then
-  print_step "NVIDIA detected: installing 32-bit userspace libs..."
-  sudo dnf install -y --skip-broken --skip-unavailable xorg-x11-drv-nvidia-libs.i686 cuda-libs.i686 2>/dev/null || true
+# Auto-detect and install GPU drivers
+print_step "Detecting GPU and installing drivers..."
+
+# Detect NVIDIA GPU
+if lspci | grep -i nvidia &>/dev/null; then
+    echo "  NVIDIA GPU detected"
+    if ! command -v nvidia-smi &>/dev/null && ! rpm -q akmod-nvidia &>/dev/null; then
+        echo "  Installing NVIDIA drivers..."
+        sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda || print_warning "NVIDIA driver installation failed"
+        
+        # Check if Secure Boot is enabled
+        if mokutil --sb-state 2>/dev/null | grep -q "SecureBoot enabled"; then
+            print_warning "Secure Boot is enabled. You'll need to enroll the MOK key on next reboot."
+        fi
+    else
+        echo "  NVIDIA drivers already installed"
+    fi
+    
+    # Install 32-bit libs for gaming/Wine compatibility
+    if command -v nvidia-smi &>/dev/null || rpm -q akmod-nvidia &>/dev/null; then
+        echo "  Installing NVIDIA 32-bit userspace libs..."
+        sudo dnf install -y --skip-broken --skip-unavailable xorg-x11-drv-nvidia-libs.i686 cuda-libs.i686 2>/dev/null || true
+    fi
+fi
+
+# Detect AMD GPU
+if lspci | grep -i 'vga.*amd\|vga.*radeon' &>/dev/null; then
+    echo "  AMD GPU detected"
+    if ! command -v rocm-smi &>/dev/null; then
+        echo "  Installing AMD ROCm tools..."
+        sudo dnf install -y rocm-smi || print_warning "AMD ROCm installation failed"
+    else
+        echo "  AMD ROCm already installed"
+    fi
+fi
+
+# Detect Intel GPU (integrated graphics)
+if lspci | grep -i 'vga.*intel' &>/dev/null; then
+    echo "  Intel GPU detected (drivers included in kernel)"
 fi
 
 # ============================================
@@ -397,7 +432,5 @@ echo "Manual steps:"
 echo "  - Run Battle.net: lutris or wine ~/Downloads/Battle.net-Setup.exe"
 echo "  - Log into Dropbox, Steam, Discord, WeChat"
 echo "  - Activate PyCharm license"
-echo "  - Install GPU drivers manually if needed:"
-echo "      NVIDIA: sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda"
-echo "      AMD:    sudo dnf install rocm-smi"
+echo "  - GPU drivers were installed automatically (if detected)"
 echo ""
