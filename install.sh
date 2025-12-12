@@ -264,7 +264,7 @@ fi
 # ============================================
 # STEP 12: Setup Autostart
 # ============================================
-print_step "Step 13/12: Setting up autostart apps..."
+print_step "Step 12/12: Setting up autostart apps..."
 
 mkdir -p ~/.config/autostart
 
