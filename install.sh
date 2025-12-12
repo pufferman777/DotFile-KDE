@@ -84,8 +84,11 @@ EOF
 # ============================================
 print_step "Step 2/12: Installing packages (this takes a while)..."
 
-# Filter comments and empty lines, then install
-grep -v '^#' "$DOTFILES_DIR/packages.txt" | grep -v '^$' | xargs sudo dnf install -y
+# Filter comments and empty lines, then install (skip unavailable and keep going)
+mapfile -t PKGS < <(grep -v '^#' "$DOTFILES_DIR/packages.txt" | grep -v '^$')
+if ! sudo dnf install -y --allowerasing --skip-broken --setopt=skip_unavailable=True "${PKGS[@]}"; then
+    print_warning "Some packages were unavailable or already installed; continuing."
+fi
 
 # Install Dropbox
 sudo dnf install -y dropbox nautilus-dropbox 2>/dev/null || true
