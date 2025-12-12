@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -o pipefail
 
 # Download 124 high-quality 2K+ wallpapers from Wallhaven
 # Images are downloaded directly to /usr/share/backgrounds/custom
@@ -70,7 +70,9 @@ while [[ $download_count -lt $needed ]]; do
     fi
     
     for url in "${image_urls[@]}"; do
-        [[ $download_count -ge $needed ]] && break
+        if [[ $download_count -ge $needed ]]; then
+            break
+        fi
         
         # Extract filename from URL
         filename=$(basename "$url")
