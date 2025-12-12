@@ -1,0 +1,63 @@
+# Core apps
+plank
+numlockx
+brave-browser
+warp-terminal
+steam
+mpv
+transmission
+shotwell
+firefox
+thunderbird
+
+# Nemo plugins
+nemo-fileroller
+nemo-image-converter
+nemo-preview
+
+# Desktop
+slick-greeter
+slick-greeter-cinnamon
+cinnamon
+
+# Productivity
+libreoffice-calc
+libreoffice-writer
+libreoffice-impress
+gnome-calculator
+gnome-screenshot
+gnome-disk-utility
+gnome-system-monitor
+gnome-terminal
+xed
+
+# System tools
+neofetch
+htop
+powertop
+git-core
+wget
+curl
+rsync
+rclone
+
+# GPU drivers & tools
+akmod-nvidia
+xorg-x11-drv-nvidia-cuda
+
+# Gaming
+wine
+lutris
+
+# Theme dependencies
+gtk-murrine-engine
+gtk2-engines
+sassc
+
+# Fonts
+aajohan-comfortaa-fonts
+google-noto-sans-fonts
+
+# Development
+python3-devel
+python3-pip

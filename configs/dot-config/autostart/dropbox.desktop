@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Dropbox
+Exec=env XDG_CURRENT_DESKTOP=GNOME /home/testbug/.dropbox-dist/dropboxd
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Comment=Start Dropbox on login

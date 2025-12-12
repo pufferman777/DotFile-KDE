@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Plank
+Comment=Start the Plank dock on login
+Exec=plank
+TryExec=plank
+X-GNOME-Autostart-enabled=true
+StartupNotify=false
