@@ -27,6 +27,10 @@ fi
 needed=$((TARGET_COUNT - existing_count))
 print_step "Downloading ${needed} new wallpapers (already have ${existing_count})..."
 
+# Download to temp directory first, then move with sudo
+TEMP_DIR=$(mktemp -d)
+trap "rm -rf $TEMP_DIR" EXIT
+
 # Search queries for variety
 queries=(
     "nature landscape"
@@ -106,25 +110,28 @@ for query in "${queries[@]}"; do
             # Pexels URL format for original quality
             url="https://images.pexels.com/photos/${photo_id}/pexels-photo-${photo_id}.jpeg?auto=compress&cs=tinysrgb&w=2560"
             
-            output_file="$DEST_DIR/pexels-${photo_id}.jpg"
+            final_file="$DEST_DIR/pexels-${photo_id}.jpg"
+            temp_file="$TEMP_DIR/pexels-${photo_id}.jpg"
             
-            # Skip if file already exists
-            if [[ -f "$output_file" ]]; then
+            # Skip if file already exists in destination
+            if [[ -f "$final_file" ]]; then
                 continue
             fi
             
-            # Download with retry logic
-            if wget -q --timeout=30 --tries=3 "$url" -O "$output_file" 2>/dev/null; then
+            # Download to temp directory (no sudo needed)
+            if wget -q --timeout=30 --tries=3 "$url" -O "$temp_file" 2>/dev/null; then
                 # Verify it's actually an image (not an error page)
-                if file "$output_file" | grep -q "image\|JPEG\|PNG"; then
-                    sudo chown root:root "$output_file"
-                    sudo chmod 644 "$output_file"
+                if file "$temp_file" | grep -q "image\|JPEG\|PNG"; then
+                    # Move to system folder with sudo
+                    sudo mv "$temp_file" "$final_file"
+                    sudo chown root:root "$final_file"
+                    sudo chmod 644 "$final_file"
                     ((download_count++))
                 else
-                    rm -f "$output_file"
+                    rm -f "$temp_file"
                 fi
             else
-                rm -f "$output_file"
+                rm -f "$temp_file"
             fi
             
             # Small delay to avoid rate limiting
