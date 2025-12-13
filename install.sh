@@ -138,6 +138,7 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 
 flatpak install -y flathub com.tencent.WeChat 2>/dev/null || true
 flatpak install -y flathub com.discordapp.Discord 2>/dev/null || true
+flatpak install -y flathub com.spotify.Client 2>/dev/null || true
 # Gaming helpers
 flatpak install -y flathub net.davidotek.pupgui2 2>/dev/null || true
 flatpak install -y flathub com.heroicgameslauncher.hgl 2>/dev/null || true
