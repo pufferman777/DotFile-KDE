@@ -87,46 +87,11 @@ fi
 # Install Dropbox
 sudo dnf install -y dropbox nautilus-dropbox 2>/dev/null || true
 
-# Auto-detect and install GPU drivers
-print_step "Detecting GPU and installing drivers..."
-
-# Detect NVIDIA GPU
-if lspci | grep -i nvidia &>/dev/null; then
-    echo "  NVIDIA GPU detected"
-    if ! command -v nvidia-smi &>/dev/null && ! rpm -q akmod-nvidia &>/dev/null; then
-        echo "  Installing NVIDIA drivers..."
-        sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda || print_warning "NVIDIA driver installation failed"
-        
-        # Check if Secure Boot is enabled
-        if mokutil --sb-state 2>/dev/null | grep -q "SecureBoot enabled"; then
-            print_warning "Secure Boot is enabled. You'll need to enroll the MOK key on next reboot."
-        fi
-    else
-        echo "  NVIDIA drivers already installed"
-    fi
-    
-    # Install 32-bit libs for gaming/Wine compatibility
-    if command -v nvidia-smi &>/dev/null || rpm -q akmod-nvidia &>/dev/null; then
-        echo "  Installing NVIDIA 32-bit userspace libs..."
-        sudo dnf install -y --skip-broken --skip-unavailable xorg-x11-drv-nvidia-libs.i686 cuda-libs.i686 2>/dev/null || true
-    fi
-fi
-
-# Detect AMD GPU
-if lspci | grep -i 'vga.*amd\|vga.*radeon' &>/dev/null; then
-    echo "  AMD GPU detected"
-    if ! command -v rocm-smi &>/dev/null; then
-        echo "  Installing AMD ROCm tools..."
-        sudo dnf install -y rocm-smi || print_warning "AMD ROCm installation failed"
-    else
-        echo "  AMD ROCm already installed"
-    fi
-fi
-
-# Detect Intel GPU (integrated graphics)
-if lspci | grep -i 'vga.*intel' &>/dev/null; then
-    echo "  Intel GPU detected (drivers included in kernel)"
-fi
+# NOTE: GPU driver auto-installation has been removed to prevent hardware-specific issues.
+# To install GPU drivers manually:
+#   NVIDIA: sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda
+#   AMD:    sudo dnf install rocm-smi (optional, drivers included in kernel)
+#   Intel:  Drivers included in kernel (no action needed)
 
 # ============================================
 # STEP 3: Install Flatpak Apps
@@ -206,24 +171,9 @@ EOF
 fi
 
 # ============================================
-# STEP 6: Install auto-cpufreq
+# STEP 6: Download Battle.net
 # ============================================
-print_step "Step 6/10: Installing auto-cpufreq..."
-
-if ! command -v auto-cpufreq &> /dev/null; then
-    cd /tmp
-    git clone https://github.com/AdnanHodzic/auto-cpufreq.git
-    cd auto-cpufreq
-    sudo ./auto-cpufreq-installer --install
-    cd /tmp
-    rm -rf auto-cpufreq
-    sudo auto-cpufreq --install
-fi
-
-# ============================================
-# STEP 7: Download Battle.net
-# ============================================
-print_step "Step 7/10: Downloading Battle.net installer..."
+print_step "Step 6/9: Downloading Battle.net installer..."
 
 mkdir -p ~/Downloads
 if [ ! -f ~/Downloads/Battle.net-Setup.exe ]; then
@@ -233,12 +183,12 @@ if [ ! -f ~/Downloads/Battle.net-Setup.exe ]; then
 fi
 
 # ============================================
-# STEP 8: Install Icon Themes
+# STEP 7: Install Icon Themes
 # ============================================
 if grep -q "^icons_installed$" "$COMPLETION_MARKER" 2>/dev/null; then
-    print_step "Step 8/10: Icon themes already installed (skipping)..."
+    print_step "Step 7/9: Icon themes already installed (skipping)..."
 else
-    print_step "Step 8/10: Installing icon themes..."
+    print_step "Step 7/9: Installing icon themes..."
     
     mkdir -p ~/.local/share/icons
     cd /tmp
@@ -362,9 +312,9 @@ fi
 fi
 
 # ============================================
-# STEP 9: Install GTK Themes & Wallpapers
+# STEP 8: Install GTK Themes & Wallpapers
 # ============================================
-print_step "Step 9/10: Installing GTK themes and wallpapers..."
+print_step "Step 8/9: Installing GTK themes and wallpapers..."
 
 mkdir -p ~/.themes
 
@@ -405,9 +355,9 @@ else
 fi
 
 # ============================================
-# STEP 10: Apply Keyboard Shortcuts
+# STEP 9: Apply Keyboard Shortcuts
 # ============================================
-print_step "Step 10/10: Applying keyboard shortcuts..."
+print_step "Step 9/9: Applying keyboard shortcuts..."
 
 if [ -f "$DOTFILES_DIR/configs/apply-kde-shortcuts.sh" ]; then
     "$DOTFILES_DIR/configs/apply-kde-shortcuts.sh" || \
@@ -443,7 +393,6 @@ echo "  - KDE Plasma apps (Dolphin, Konsole, Spectacle, Kate)"
 echo "  - Flatpak apps (WeChat, Discord, Spotify, Obsidian)"
 echo "  - Snap apps (TradingView)"
 echo "  - PyCharm Pro (activate license on first run)"
-echo "  - auto-cpufreq (power management)"
 echo "  - Multiple icon themes (Tela Circle, Papirus, Colloid, etc.)"
 echo "  - Custom GTK themes"
 echo "  - Keyboard shortcuts:"
@@ -457,5 +406,5 @@ echo "  - Run Battle.net: lutris or wine ~/Downloads/Battle.net-Setup.exe"
 echo "  - Log into Dropbox, Steam, Discord, WeChat"
 echo "  - Activate PyCharm license"
 echo "  - Configure KDE appearance: System Settings > Appearance"
-echo "  - GPU drivers were installed automatically (if detected)"
+echo "  - GPU drivers: Install manually if needed (see script comments)"
 echo ""
