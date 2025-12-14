@@ -1,8 +1,10 @@
 # Fedora KDE Plasma Dotfiles
 
-My personal Fedora KDE Plasma setup with custom themes, icons, and configurations.
+My personal Fedora KDE Plasma setup with custom themes, icons, and applications.
 
-## Quick Install
+## Quick Install (Recommended)
+
+**NEW: Minimal, safe installer** - Only installs apps, libraries, themes, and icons. No system configuration changes.
 
 On a fresh Fedora KDE Plasma installation, run:
 
@@ -13,10 +15,12 @@ gh auth login --hostname github.com --git-protocol https --web
 # Clone and run
 gh repo clone pufferman777/DotFile-KDE ~/DotFile-KDE
 cd ~/DotFile-KDE
-./install.sh
+./install-minimal.sh
 ```
 
-Then log out and log back in.
+### Legacy Installer
+
+The original `install.sh` has known issues with GPU drivers, WiFi, and suspend on some hardware. Use `install-minimal.sh` instead.
 
 ## What's Included
 
