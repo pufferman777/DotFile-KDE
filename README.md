@@ -57,18 +57,19 @@ The original `install.sh` has known issues with GPU drivers, WiFi, and suspend o
 
 ## Optional Components
 
-### Keyboard Shortcuts
-Custom keyboard shortcuts have been removed from automatic installation to prevent system suspend issues on some hardware. To manually configure them:
+### Keyboard Shortcuts (Safe Version)
+Optional keyboard shortcuts - manually run after installation:
 ```bash
 cd ~/DotFile-KDE
-./configs/apply-kde-shortcuts.sh
+./configs/apply-safe-shortcuts.sh
 ```
 
-Shortcuts configured:
+Shortcuts configured (safe, no suspend):
 - `Ctrl+Alt+End` - Shutdown
-- `Ctrl+Alt+Home` - Suspend (may cause issues on some systems)
 - `Ctrl+Alt+Insert` - Reboot
 - `Ctrl+Shift+~` - Launch Spectacle (screenshot)
+
+The suspend shortcut is intentionally excluded to prevent hardware compatibility issues. Configure it manually in System Settings if your hardware supports it.
 
 ### auto-cpufreq (Power Management)
 For laptops or systems that need advanced CPU frequency management:
