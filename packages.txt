@@ -1,35 +1,34 @@
 # Core apps
-plank
 numlockx
 brave-browser
 warp-terminal
 steam
 mpv
 transmission
-shotwell
+gwenview
 firefox
 thunderbird
 
-# Nemo plugins
-nemo-fileroller
-nemo-image-converter
-nemo-preview
+# KDE apps
+dolphin
+dolphin-plugins
+konsole
+spectacle
+kate
+ark
 
 # Desktop
-slick-greeter
-slick-greeter-cinnamon
-cinnamon
+sddm
+sddm-kcm
+plasma-workspace
 
 # Productivity
 libreoffice-calc
 libreoffice-writer
 libreoffice-impress
-gnome-calculator
-gnome-screenshot
-gnome-disk-utility
-gnome-system-monitor
-gnome-terminal
-xed
+kcalc
+partitionmanager
+ksysguard
 
 # System tools
 neofetch

@@ -2,7 +2,7 @@
 set -e
 
 echo "============================================"
-echo "  Fedora Dotfiles Bootstrap"
+echo "  Fedora KDE Plasma Dotfiles Bootstrap"
 echo "============================================"
 echo ""
 
@@ -409,22 +409,14 @@ fi
 # ============================================
 print_step "Step 10/10: Applying keyboard shortcuts..."
 
-if [ -f "$DOTFILES_DIR/configs/keyboard-shortcuts.dconf" ]; then
-    dconf load /org/cinnamon/desktop/keybindings/ < "$DOTFILES_DIR/configs/keyboard-shortcuts.dconf" || \
+if [ -f "$DOTFILES_DIR/configs/apply-kde-shortcuts.sh" ]; then
+    "$DOTFILES_DIR/configs/apply-kde-shortcuts.sh" || \
         print_warning "Could not apply keyboard shortcuts; you may need to set them manually."
 fi
 
 
 # Setup autostart
 mkdir -p ~/.config/autostart
-
-cat > ~/.config/autostart/plank.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Plank
-Exec=plank
-X-GNOME-Autostart-enabled=true
-EOF
 
 cat > ~/.config/autostart/numlockx.desktop << 'EOF'
 [Desktop Entry]
@@ -447,22 +439,23 @@ echo "Please LOG OUT and LOG BACK IN for all changes to take effect."
 echo ""
 echo "Your setup includes:"
 echo "  - DNF packages (Brave, Warp, Steam, rclone, etc.)"
-echo "  - Flatpak apps (WeChat, Discord)"
+echo "  - KDE Plasma apps (Dolphin, Konsole, Spectacle, Kate)"
+echo "  - Flatpak apps (WeChat, Discord, Spotify, Obsidian)"
 echo "  - Snap apps (TradingView)"
 echo "  - PyCharm Pro (activate license on first run)"
 echo "  - auto-cpufreq (power management)"
-echo "  - Tela Circle Purple icons"
-echo "  - Custom themes"
-echo "  - Plank dock (auto-starts)"
+echo "  - Multiple icon themes (Tela Circle, Papirus, Colloid, etc.)"
+echo "  - Custom GTK themes"
 echo "  - Keyboard shortcuts:"
 echo "      Ctrl+Alt+End    = Shutdown"
 echo "      Ctrl+Alt+Home   = Suspend"
 echo "      Ctrl+Alt+Insert = Reboot"
-echo "      Ctrl+Shift+~    = Area screenshot to clipboard"
+echo "      Ctrl+Shift+~    = Launch Spectacle (screenshot)"
 echo ""
 echo "Manual steps:"
 echo "  - Run Battle.net: lutris or wine ~/Downloads/Battle.net-Setup.exe"
 echo "  - Log into Dropbox, Steam, Discord, WeChat"
 echo "  - Activate PyCharm license"
+echo "  - Configure KDE appearance: System Settings > Appearance"
 echo "  - GPU drivers were installed automatically (if detected)"
 echo ""

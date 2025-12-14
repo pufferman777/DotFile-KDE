@@ -1,18 +1,18 @@
-# Fedora Cinnamon Dotfiles
+# Fedora KDE Plasma Dotfiles
 
-My personal Fedora Cinnamon setup with custom themes, icons, and configurations.
+My personal Fedora KDE Plasma setup with custom themes, icons, and configurations.
 
 ## Quick Install
 
-On a fresh Fedora Cinnamon installation, run:
+On a fresh Fedora KDE Plasma installation, run:
 
 ```bash
 sudo dnf install -y git gh
 # Authenticate in your browser (uses your GitHub login)
 gh auth login --hostname github.com --git-protocol https --web
 # Clone and run
-gh repo clone pufferman777/dotfiles ~/dotfiles
-cd ~/dotfiles
+gh repo clone pufferman777/dotfiles ~/DotFile-KDE
+cd ~/DotFile-KDE
 ./install.sh
 ```
 
@@ -21,28 +21,27 @@ Then log out and log back in.
 ## What's Included
 
 ### Apps & Packages
-- **Desktop**: Plank dock, NumLockX
-- **Browsers**: Brave Browser
-- **Terminals**: Warp Terminal
-- **Gaming**: Steam, Lutris, Wine
-- **Flatpak**: WeChat, Discord, Obsidian, Joplin
+- **Desktop**: KDE Plasma, Dolphin, Konsole, Spectacle, Kate, Ark, NumLockX
+- **Browsers**: Brave Browser, Firefox
+- **Terminals**: Warp Terminal, Konsole
+- **Gaming**: Steam, Lutris, Wine, gamemode, mangohud
+- **Flatpak**: WeChat, Discord, Spotify, Obsidian, Joplin, Heroic Games Launcher
 - **Snap**: TradingView
 - **Dev Tools**: PyCharm Professional
 - **System**: auto-cpufreq, rclone, Dropbox, neofetch, htop, powertop
 
 ### Themes & Icons and Wallpapers
-- **Icons**: Tela Circle Purple Dark, Papirus (plus full color sets for WhiteSur, Colloid, Flat-Remix, McMojave, Inverse, Oranchelo, Zafiro)
-- **Themes**: Adapta-Nokto, Carta, CBlue, Faded-Dream, Numix-Cinnamon-Transparent
-- **Wallpapers**: Variety (auto-download/rotate), Fondo (search/download), Hydrapaper (per‑monitor)
+- **Icons**: Tela Circle (all colors), Papirus, WhiteSur, Colloid, Flat-Remix, McMojave Circle, Inverse, Oranchelo, Zafiro
+- **GTK Themes**: Adapta-Nokto, Carta, CBlue, Faded-Dream, Numix (for GTK apps in KDE)
+- **Wallpapers**: High-quality 2K+ images from Unsplash, Variety (auto-download/rotate), Fondo, Hydrapaper
 
 ### Keyboard Shortcuts
 - `Ctrl+Alt+End` - Shutdown
 - `Ctrl+Alt+Home` - Suspend
 - `Ctrl+Alt+Insert` - Reboot
-- `Ctrl+Shift+~` - Area screenshot to clipboard
+- `Ctrl+Shift+~` - Launch Spectacle (screenshot tool)
 
 ### Autostart
-- Plank dock
 - NumLockX
 
 ## Manual Steps After Install
@@ -53,7 +52,7 @@ Then log out and log back in.
 3. **Sign in to apps**: Steam, Discord, WeChat, Dropbox
 4. **Activate PyCharm Pro license**
 5. **Run Battle.net**: `lutris` or `wine ~/Downloads/Battle.net-Setup.exe`
-6. **Configure Cinnamon**: Add applets, set wallpaper, adjust monitor settings
+6. **Configure KDE**: System Settings > Appearance to set icon theme, GTK theme, wallpaper, etc.
 
 ## Updating
 
