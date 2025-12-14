@@ -355,15 +355,12 @@ else
 fi
 
 # ============================================
-# STEP 9: Apply Keyboard Shortcuts
+# STEP 9: Setup Autostart
 # ============================================
-print_step "Step 9/9: Applying keyboard shortcuts..."
+print_step "Step 9/9: Setting up autostart apps..."
 
-if [ -f "$DOTFILES_DIR/configs/apply-kde-shortcuts.sh" ]; then
-    "$DOTFILES_DIR/configs/apply-kde-shortcuts.sh" || \
-        print_warning "Could not apply keyboard shortcuts; you may need to set them manually."
-fi
-
+# NOTE: Keyboard shortcut configuration has been removed to prevent system suspend issues.
+# To manually configure keyboard shortcuts, see: configs/apply-kde-shortcuts.sh
 
 # Setup autostart
 mkdir -p ~/.config/autostart
@@ -395,11 +392,6 @@ echo "  - Snap apps (TradingView)"
 echo "  - PyCharm Pro (activate license on first run)"
 echo "  - Multiple icon themes (Tela Circle, Papirus, Colloid, etc.)"
 echo "  - Custom GTK themes"
-echo "  - Keyboard shortcuts:"
-echo "      Ctrl+Alt+End    = Shutdown"
-echo "      Ctrl+Alt+Home   = Suspend"
-echo "      Ctrl+Alt+Insert = Reboot"
-echo "      Ctrl+Shift+~    = Launch Spectacle (screenshot)"
 echo ""
 echo "Manual steps:"
 echo "  - Run Battle.net: lutris or wine ~/Downloads/Battle.net-Setup.exe"

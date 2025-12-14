@@ -35,12 +35,6 @@ Then log out and log back in.
 - **GTK Themes**: Adapta-Nokto, Carta, CBlue, Faded-Dream, Numix (for GTK apps in KDE)
 - **Wallpapers**: High-quality 2K+ images from Unsplash, Variety (auto-download/rotate), Fondo, Hydrapaper
 
-### Keyboard Shortcuts
-- `Ctrl+Alt+End` - Shutdown
-- `Ctrl+Alt+Home` - Suspend
-- `Ctrl+Alt+Insert` - Reboot
-- `Ctrl+Shift+~` - Launch Spectacle (screenshot tool)
-
 ### Autostart
 - NumLockX
 
@@ -57,7 +51,20 @@ Then log out and log back in.
 5. **Run Battle.net**: `lutris` or `wine ~/Downloads/Battle.net-Setup.exe`
 6. **Configure KDE**: System Settings > Appearance to set icon theme, GTK theme, wallpaper, etc.
 
-## Optional Hardware-Specific Tools
+## Optional Components
+
+### Keyboard Shortcuts
+Custom keyboard shortcuts have been removed from automatic installation to prevent system suspend issues on some hardware. To manually configure them:
+```bash
+cd ~/DotFile-KDE
+./configs/apply-kde-shortcuts.sh
+```
+
+Shortcuts configured:
+- `Ctrl+Alt+End` - Shutdown
+- `Ctrl+Alt+Home` - Suspend (may cause issues on some systems)
+- `Ctrl+Alt+Insert` - Reboot
+- `Ctrl+Shift+~` - Launch Spectacle (screenshot)
 
 ### auto-cpufreq (Power Management)
 For laptops or systems that need advanced CPU frequency management:
