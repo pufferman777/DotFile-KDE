@@ -15,12 +15,8 @@ gh auth login --hostname github.com --git-protocol https --web
 # Clone and run
 gh repo clone pufferman777/DotFile-KDE ~/DotFile-KDE
 cd ~/DotFile-KDE
-./install-minimal.sh
+./install.sh
 ```
-
-### Legacy Installer
-
-The original `install.sh` has known issues with GPU drivers, WiFi, and suspend on some hardware. Use `install-minimal.sh` instead.
 
 ## What's Included
 
