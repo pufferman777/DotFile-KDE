@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 echo "============================================"
 echo "  Fedora KDE Plasma Dotfiles Bootstrap"
@@ -12,7 +11,11 @@ COMPLETION_MARKER="$HOME/.config/dotfiles-install-complete"
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m'
+
+# Track failed steps
+FAILED_STEPS=()
 
 print_step() {
     echo -e "${GREEN}==>${NC} $1"
@@ -20,6 +23,14 @@ print_step() {
 
 print_warning() {
     echo -e "${YELLOW}Warning:${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}Error:${NC} $1"
+}
+
+record_failure() {
+    FAILED_STEPS+=("$1")
 }
 
 # Check if running as root
@@ -35,11 +46,14 @@ fi
 # ============================================
 print_step "Step 1/10: Setting up repositories..."
 
-# RPM Fusion
-sudo dnf install -y \
+# RPM Fusion (Free and Nonfree)
+echo "  Setting up RPM Fusion repositories..."
+if ! sudo dnf install -y \
     https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm \
-    2>/dev/null || true
+    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm; then
+    print_warning "Failed to install RPM Fusion repositories"
+    record_failure "Step 1: RPM Fusion setup"
+fi
 
 # Brave Browser repo
 sudo tee /etc/yum.repos.d/brave-browser.repo > /dev/null << 'EOF'
@@ -98,21 +112,35 @@ sudo dnf install -y dropbox nautilus-dropbox 2>/dev/null || true
 # ============================================
 print_step "Step 3/10: Installing Flatpak apps..."
 
-sudo dnf install -y flatpak
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-
-flatpak install -y flathub com.tencent.WeChat 2>/dev/null || true
-flatpak install -y flathub com.discordapp.Discord 2>/dev/null || true
-flatpak install -y flathub com.spotify.Client 2>/dev/null || true
-# Gaming helpers
-flatpak install -y flathub net.davidotek.pupgui2 2>/dev/null || true
-flatpak install -y flathub com.heroicgameslauncher.hgl 2>/dev/null || true
-# Notes/PKM
-flatpak install -y flathub md.obsidian.Obsidian 2>/dev/null || true
-flatpak install -y flathub net.cozic.joplin_desktop 2>/dev/null || true
-# Wallpaper tools
-flatpak install -y flathub com.github.calo001.fondo 2>/dev/null || true
-flatpak install -y flathub org.gabmus.hydrapaper 2>/dev/null || true
+if sudo dnf install -y flatpak; then
+    # Add flathub remote at user level (no sudo/authentication needed)
+    echo "  Setting up Flathub repository (user-level)..."
+    if ! flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; then
+        print_error "Failed to add flathub repository"
+        record_failure "Step 3: Flatpak repository setup"
+    else
+        # Install all flatpak apps in one batch (user-level, no authentication)
+        echo "  Installing Flatpak apps..."
+        FLATPAK_APPS=(
+            "com.tencent.WeChat"
+            "com.discordapp.Discord"
+            "com.spotify.Client"
+            "net.davidotek.pupgui2"
+            "com.heroicgameslauncher.hgl"
+            "md.obsidian.Obsidian"
+            "net.cozic.joplin_desktop"
+            "com.github.calo001.fondo"
+            "org.gabmus.hydrapaper"
+        )
+        
+        if ! flatpak install --user -y flathub "${FLATPAK_APPS[@]}" 2>&1 | grep -v "^$"; then
+            print_warning "Some flatpak apps may have failed to install"
+        fi
+    fi
+else
+    print_error "Failed to install flatpak package"
+    record_failure "Step 3: Flatpak installation"
+fi
 
 # ============================================
 # STEP 4: Install Snap Apps
@@ -378,9 +406,20 @@ EOF
 # DONE
 # ============================================
 echo ""
-echo -e "${GREEN}============================================${NC}"
-echo -e "${GREEN}  Setup Complete!${NC}"
-echo -e "${GREEN}============================================${NC}"
+if [ ${#FAILED_STEPS[@]} -eq 0 ]; then
+    echo -e "${GREEN}============================================${NC}"
+    echo -e "${GREEN}  Setup Complete!${NC}"
+    echo -e "${GREEN}============================================${NC}"
+else
+    echo -e "${YELLOW}============================================${NC}"
+    echo -e "${YELLOW}  Setup Complete with Some Failures${NC}"
+    echo -e "${YELLOW}============================================${NC}"
+    echo ""
+    echo -e "${RED}The following steps encountered errors:${NC}"
+    for failure in "${FAILED_STEPS[@]}"; do
+        echo -e "  ${RED}✗${NC} $failure"
+    done
+fi
 echo ""
 echo "Please LOG OUT and LOG BACK IN for all changes to take effect."
 echo ""
@@ -399,4 +438,8 @@ echo "  - Log into Dropbox, Steam, Discord, WeChat"
 echo "  - Activate PyCharm license"
 echo "  - Configure KDE appearance: System Settings > Appearance"
 echo "  - GPU drivers: Install manually if needed (see script comments)"
+if [ ${#FAILED_STEPS[@]} -gt 0 ]; then
+    echo ""
+    echo -e "${YELLOW}Note: Review the errors above and manually complete any failed steps.${NC}"
+fi
 echo ""
