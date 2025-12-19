@@ -80,9 +80,19 @@ fi
 
 
 # ============================================
-# STEP 1: Setup Repositories
+# STEP 1: Update System (prevents partial updates)
 # ============================================
-print_step "Step 1/10: Setting up repositories..."
+print_step "Step 1/11: Updating system to prevent library mismatches..."
+echo "  This prevents KWin crashes and library symbol errors"
+if ! sudo dnf update --refresh -y; then
+    print_warning "System update had issues, but continuing..."
+    record_failure "Step 1: System update"
+fi
+
+# ============================================
+# STEP 2: Setup Repositories
+# ============================================
+print_step "Step 2/11: Setting up repositories..."
 
 # RPM Fusion (Free and Nonfree)
 echo "  Setting up RPM Fusion repositories..."
@@ -125,7 +135,7 @@ EOF
 # ============================================
 # STEP 2: Install Packages
 # ============================================
-print_step "Step 2/10: Installing packages (this takes a while)..."
+print_step "Step 3/11: Installing packages (this takes a while)..."
 
 # Filter comments and empty lines, then install
 mapfile -t PKGS < <(grep -v '^#' "$DOTFILES_DIR/packages.txt" | grep -v '^$')
@@ -226,7 +236,7 @@ fi
 # ============================================
 # STEP 3: Install Flatpak Apps
 # ============================================
-print_step "Step 3/10: Installing Flatpak apps..."
+print_step "Step 4/11: Installing Flatpak apps..."
 
 if sudo dnf install -y flatpak; then
     # Add flathub remote at user level (no sudo/authentication needed)
@@ -261,7 +271,7 @@ fi
 # ============================================
 # STEP 4: Install Snap Apps
 # ============================================
-print_step "Step 4/10: Setting up Snap (requires reboot)..."
+print_step "Step 5/11: Setting up Snap (requires reboot)..."
 
 # Install snapd
 if sudo dnf install -y snapd; then
@@ -300,7 +310,7 @@ fi
 # ============================================
 # STEP 5: Install PyCharm Pro
 # ============================================
-print_step "Step 5/10: Installing PyCharm Pro..."
+print_step "Step 6/11: Installing PyCharm Pro..."
 
 PYCHARM_VERSION="2024.3.1.1"
 PYCHARM_URL="https://download.jetbrains.com/python/pycharm-professional-${PYCHARM_VERSION}.tar.gz"
@@ -346,7 +356,7 @@ fi
 # ============================================
 # STEP 6: Download Battle.net
 # ============================================
-print_step "Step 6/10: Downloading Battle.net installer..."
+print_step "Step 7/11: Downloading Battle.net installer..."
 
 mkdir -p ~/Downloads
 if [ ! -f ~/Downloads/Battle.net-Setup.exe ]; then
@@ -359,9 +369,9 @@ fi
 # STEP 7: Install Icon Themes
 # ============================================
 if grep -q "^icons_installed$" "$COMPLETION_MARKER" 2>/dev/null; then
-    print_step "Step 7/10: Icon themes already installed (skipping)..."
+    print_step "Step 8/11: Icon themes already installed (skipping)..."
 else
-    print_step "Step 7/10: Installing icon themes..."
+    print_step "Step 8/11: Installing icon themes..."
     
     mkdir -p ~/.local/share/icons
     ORIGINAL_DIR="$(pwd)"
@@ -489,7 +499,7 @@ fi
 # ============================================
 # STEP 8: Install GTK Themes & Wallpapers
 # ============================================
-print_step "Step 8/10: Installing GTK themes and wallpapers..."
+print_step "Step 9/11: Installing GTK themes and wallpapers..."
 
 mkdir -p ~/.themes
 
@@ -532,7 +542,7 @@ fi
 # ============================================
 # STEP 9: Setup Autostart
 # ============================================
-print_step "Step 9/10: Setting up autostart apps..."
+print_step "Step 10/11: Setting up autostart apps..."
 
 # NOTE: Keyboard shortcut configuration has been removed to prevent system suspend issues.
 # To manually configure keyboard shortcuts, see: configs/apply-kde-shortcuts.sh
