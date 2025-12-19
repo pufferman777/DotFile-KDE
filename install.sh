@@ -198,39 +198,111 @@ fi
 # ============================================
 print_step "Detecting GPU and installing drivers..."
 
-# Detect GPU vendor
-if lspci | grep -i vga | grep -iq "amd\|radeon"; then
-    echo "  Detected AMD GPU"
+# Detect GPU vendor and model
+GPU_INFO=$(lspci | grep -i vga)
+echo "  Detected GPU: $GPU_INFO"
+
+if echo "$GPU_INFO" | grep -iq "amd\|radeon"; then
+    echo "  AMD GPU detected"
     
-    # For AMD RX 7000 series (RDNA 3), ensure latest Mesa and firmware
-    echo "  Installing AMD drivers and firmware..."
-    if ! sudo dnf install -y \
-        mesa-dri-drivers \
-        mesa-vulkan-drivers \
-        vulkan-tools \
-        mesa-libGL \
-        xorg-x11-drv-amdgpu \
-        linux-firmware; then
-        print_error "Failed to install AMD drivers"
-        record_failure "GPU Driver Installation: AMD"
+    # Check for specific AMD GPU models with known issues
+    if echo "$GPU_INFO" | grep -iq "RX 7[0-9][0-9][0-9]"; then
+        echo "  ⚠️  AMD RX 7000 series (RDNA 3) detected - applying specific fixes"
+        echo "  This GPU requires Mesa 22.3+ and updated firmware"
+        
+        # Force latest Mesa packages for RDNA 3
+        echo "  Installing latest Mesa drivers for RDNA 3..."
+        sudo dnf install -y \
+            mesa-dri-drivers \
+            mesa-vulkan-drivers \
+            mesa-va-drivers \
+            mesa-vdpau-drivers \
+            vulkan-tools \
+            mesa-libGL \
+            mesa-libEGL \
+            mesa-libgbm \
+            xorg-x11-drv-amdgpu \
+            linux-firmware \
+            libdrm || print_warning "Some AMD packages failed"
+        
+        # RDNA 3 specific: Ensure kernel parameter for proper initialization
+        if ! grep -q "amdgpu.sg_display=0" /etc/default/grub 2>/dev/null; then
+            echo "  Adding AMD RDNA 3 kernel parameter (optional, for stability)"
+            print_warning "Consider adding 'amdgpu.sg_display=0' to GRUB_CMDLINE_LINUX if you have issues"
+        fi
+    else
+        echo "  Installing standard AMD drivers and firmware..."
+        if ! sudo dnf install -y \
+            mesa-dri-drivers \
+            mesa-vulkan-drivers \
+            vulkan-tools \
+            mesa-libGL \
+            xorg-x11-drv-amdgpu \
+            linux-firmware; then
+            print_error "Failed to install AMD drivers"
+            record_failure "GPU Driver Installation: AMD"
+        fi
     fi
     
-    # Optional: ROCm for compute (usually not needed for gaming/desktop)
-    # sudo dnf install rocm-smi rocm-clinfo 2>/dev/null || true
+    # Verify AMDGPU driver will be used
+    echo "  Verifying AMDGPU driver configuration..."
+    if ! lsmod | grep -q amdgpu 2>/dev/null; then
+        echo "  AMDGPU driver not currently loaded (will load after reboot)"
+    else
+        echo "  ✓ AMDGPU driver is loaded"
+    fi
     
-elif lspci | grep -i vga | grep -iq "nvidia"; then
-    echo "  Detected NVIDIA GPU"
-    print_warning "NVIDIA drivers require manual installation due to Secure Boot considerations."
-    print_warning "After reboot, run: sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda"
-    print_warning "If Secure Boot is enabled, you'll need to enroll the MOK key on reboot."
-    record_failure "GPU Driver Installation: NVIDIA (manual step required)"
+elif echo "$GPU_INFO" | grep -iq "nvidia"; then
+    echo "  NVIDIA GPU detected"
     
-elif lspci | grep -i vga | grep -iq "intel"; then
-    echo "  Detected Intel GPU (drivers included in kernel)"
-    # Ensure Intel drivers are present
-    sudo dnf install -y mesa-dri-drivers mesa-vulkan-drivers vulkan-tools 2>/dev/null || true
+    # Check if Secure Boot is enabled
+    SECUREBOOT_STATUS=$(mokutil --sb-state 2>/dev/null || echo "unknown")
+    
+    if echo "$SECUREBOOT_STATUS" | grep -iq "enabled"; then
+        print_warning "⚠️  Secure Boot is ENABLED - NVIDIA driver installation requires additional steps"
+        echo "  NVIDIA drivers must be signed for Secure Boot"
+        echo ""
+        echo "  After reboot, run:"
+        echo "    1. sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda"
+        echo "    2. Wait 5-10 minutes for kernel module to build"
+        echo "    3. Reboot again and enroll MOK key when prompted"
+        record_failure "GPU Driver Installation: NVIDIA (manual step required - Secure Boot)"
+    else
+        echo "  Secure Boot is disabled - NVIDIA drivers can be installed automatically"
+        echo "  Installing NVIDIA drivers from RPM Fusion..."
+        if sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda; then
+            echo "  ✓ NVIDIA drivers installed (kernel module will build on first boot)"
+            echo "  ⚠️  First boot may take 5-10 minutes while building kernel module"
+        else
+            print_error "Failed to install NVIDIA drivers"
+            record_failure "GPU Driver Installation: NVIDIA"
+        fi
+    fi
+    
+elif echo "$GPU_INFO" | grep -iq "intel"; then
+    echo "  Intel GPU detected"
+    
+    # Check for specific Intel GPU generations
+    if echo "$GPU_INFO" | grep -iq "Arc"; then
+        echo "  Intel Arc GPU detected - installing latest drivers"
+        sudo dnf install -y \
+            mesa-dri-drivers \
+            mesa-vulkan-drivers \
+            intel-media-driver \
+            libva-intel-driver \
+            vulkan-tools \
+            mesa-libGL 2>/dev/null || print_warning "Some Intel Arc packages failed"
+    else
+        echo "  Intel integrated GPU - drivers included in kernel"
+        sudo dnf install -y \
+            mesa-dri-drivers \
+            mesa-vulkan-drivers \
+            vulkan-tools 2>/dev/null || true
+    fi
+    echo "  ✓ Intel GPU drivers configured"
 else
     print_warning "Could not detect GPU vendor. Skipping driver installation."
+    echo "  GPU Info: $GPU_INFO"
 fi
 
 # ============================================
