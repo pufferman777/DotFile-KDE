@@ -153,8 +153,8 @@ if ! sudo dnf install -y --allowerasing --skip-unavailable "${PKGS[@]}"; then
     done
 fi
 
-# Install Dropbox
-sudo dnf install -y dropbox nautilus-dropbox 2>/dev/null || true
+# Install Dropbox (for KDE, nautilus-dropbox not needed but install anyway for compatibility)
+sudo dnf install -y dropbox 2>/dev/null || true
 
 # Verify SDDM is properly configured
 print_step "Verifying SDDM display manager configuration..."
@@ -308,12 +308,25 @@ PYCHARM_DIR="/opt/pycharm"
 
 if [ ! -d "$PYCHARM_DIR" ]; then
     echo "  Downloading PyCharm Pro..."
-    cd /tmp
-    wget -q "$PYCHARM_URL" -O pycharm.tar.gz
-    sudo mkdir -p /opt
-    sudo tar -xzf pycharm.tar.gz -C /opt
-    sudo mv /opt/pycharm-* "$PYCHARM_DIR"
-    rm pycharm.tar.gz
+    ORIGINAL_DIR="$(pwd)"
+    cd /tmp || exit 1
+    
+    if wget -q --show-progress "$PYCHARM_URL" -O pycharm.tar.gz; then
+        sudo mkdir -p /opt
+        if sudo tar -xzf pycharm.tar.gz -C /opt 2>/dev/null; then
+            sudo mv /opt/pycharm-* "$PYCHARM_DIR" 2>/dev/null || true
+            echo "  PyCharm Pro installed to $PYCHARM_DIR"
+        else
+            print_warning "Failed to extract PyCharm archive"
+            record_failure "Step 5: PyCharm extraction"
+        fi
+        rm -f pycharm.tar.gz
+    else
+        print_warning "Failed to download PyCharm Pro"
+        record_failure "Step 5: PyCharm download"
+    fi
+    
+    cd "$ORIGINAL_DIR" || exit 1
     
     mkdir -p ~/.local/share/applications
     cat > ~/.local/share/applications/pycharm.desktop << EOF
@@ -333,7 +346,7 @@ fi
 # ============================================
 # STEP 6: Download Battle.net
 # ============================================
-print_step "Step 6/9: Downloading Battle.net installer..."
+print_step "Step 6/10: Downloading Battle.net installer..."
 
 mkdir -p ~/Downloads
 if [ ! -f ~/Downloads/Battle.net-Setup.exe ]; then
@@ -346,12 +359,13 @@ fi
 # STEP 7: Install Icon Themes
 # ============================================
 if grep -q "^icons_installed$" "$COMPLETION_MARKER" 2>/dev/null; then
-    print_step "Step 7/9: Icon themes already installed (skipping)..."
+    print_step "Step 7/10: Icon themes already installed (skipping)..."
 else
-    print_step "Step 7/9: Installing icon themes..."
+    print_step "Step 7/10: Installing icon themes..."
     
     mkdir -p ~/.local/share/icons
-    cd /tmp
+    ORIGINAL_DIR="$(pwd)"
+    cd /tmp || exit 1
 
 # Tela Circle (all colors)
 if [ ! -d ~/.local/share/icons/Tela-circle-purple-dark ]; then
@@ -467,6 +481,7 @@ if [ ! -d ~/.local/share/icons/Zafiro-Icons-Dark ]; then
 fi
 
     # Mark icons as installed
+    cd "$ORIGINAL_DIR" || exit 1
     mkdir -p "$(dirname "$COMPLETION_MARKER")"
     echo "icons_installed" >> "$COMPLETION_MARKER"
 fi
@@ -474,7 +489,7 @@ fi
 # ============================================
 # STEP 8: Install GTK Themes & Wallpapers
 # ============================================
-print_step "Step 8/9: Installing GTK themes and wallpapers..."
+print_step "Step 8/10: Installing GTK themes and wallpapers..."
 
 mkdir -p ~/.themes
 
@@ -517,7 +532,7 @@ fi
 # ============================================
 # STEP 9: Setup Autostart
 # ============================================
-print_step "Step 9/9: Setting up autostart apps..."
+print_step "Step 9/10: Setting up autostart apps..."
 
 # NOTE: Keyboard shortcut configuration has been removed to prevent system suspend issues.
 # To manually configure keyboard shortcuts, see: configs/apply-kde-shortcuts.sh
