@@ -40,6 +40,44 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
+# ============================================
+# STEP 0: System Configuration
+# ============================================
+print_step "Step 0/10: Configuring system basics..."
+
+# Set hostname if it's still default "fedora"
+CURRENT_HOSTNAME=$(hostnamectl hostname 2>/dev/null || cat /etc/hostname 2>/dev/null || echo "")
+if [ "$CURRENT_HOSTNAME" = "fedora" ] || [ -z "$CURRENT_HOSTNAME" ]; then
+    echo "  Current hostname is default or empty: '$CURRENT_HOSTNAME'"
+    read -p "  Enter a hostname for this machine (or press Enter to keep 'fedora'): " NEW_HOSTNAME
+    if [ -n "$NEW_HOSTNAME" ] && [ "$NEW_HOSTNAME" != "fedora" ]; then
+        if sudo hostnamectl set-hostname "$NEW_HOSTNAME"; then
+            echo "  Hostname set to: $NEW_HOSTNAME"
+        else
+            print_warning "Failed to set hostname"
+        fi
+    else
+        echo "  Keeping default hostname: fedora"
+    fi
+else
+    echo "  Hostname already configured: $CURRENT_HOSTNAME"
+fi
+
+# Fix vconsole font loading (common Fedora issue)
+if [ ! -f /etc/vconsole.conf ] || ! grep -q "FONT=" /etc/vconsole.conf 2>/dev/null; then
+    echo "  Configuring virtual console font..."
+    # Use a safe, universally available font
+    echo 'FONT=eurlatgr' | sudo tee /etc/vconsole.conf > /dev/null
+    echo 'KEYMAP=us' | sudo tee -a /etc/vconsole.conf > /dev/null
+fi
+
+# Ensure NetworkManager dispatcher directory exists (prevents activation failures)
+if [ ! -d /etc/NetworkManager/dispatcher.d ]; then
+    echo "  Creating NetworkManager dispatcher directory..."
+    sudo mkdir -p /etc/NetworkManager/dispatcher.d
+    sudo chmod 755 /etc/NetworkManager/dispatcher.d
+fi
+
 
 # ============================================
 # STEP 1: Setup Repositories
@@ -91,21 +129,99 @@ print_step "Step 2/10: Installing packages (this takes a while)..."
 
 # Filter comments and empty lines, then install
 mapfile -t PKGS < <(grep -v '^#' "$DOTFILES_DIR/packages.txt" | grep -v '^$')
-if ! sudo dnf install -y --allowerasing --skip-broken --skip-unavailable "${PKGS[@]}"; then
-    print_warning "Bulk install failed; retrying per-package..."
+
+# Critical packages that must succeed (display manager and core KDE)
+CRITICAL_PKGS=("sddm" "sddm-breeze" "plasma-workspace" "plasma-workspace-wayland" "dolphin" "konsole")
+
+# Try bulk install first (more efficient)
+if ! sudo dnf install -y --allowerasing --skip-unavailable "${PKGS[@]}"; then
+    print_warning "Bulk install had issues; verifying critical packages..."
+    
+    # Ensure critical packages are installed
+    for p in "${CRITICAL_PKGS[@]}"; do
+        if ! rpm -q "$p" &>/dev/null; then
+            if ! sudo dnf install -y "$p"; then
+                print_error "Failed to install critical package: $p"
+                record_failure "Step 2: Critical package installation ($p)"
+            fi
+        fi
+    done
+    
+    # Install remaining packages individually
     for p in "${PKGS[@]}"; do
-        sudo dnf install -y --allowerasing --skip-broken --skip-unavailable "$p" || print_warning "Skipped: $p"
+        sudo dnf install -y --skip-unavailable "$p" || print_warning "Skipped: $p"
     done
 fi
 
 # Install Dropbox
 sudo dnf install -y dropbox nautilus-dropbox 2>/dev/null || true
 
-# NOTE: GPU driver auto-installation has been removed to prevent hardware-specific issues.
-# To install GPU drivers manually:
-#   NVIDIA: sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda
-#   AMD:    sudo dnf install rocm-smi (optional, drivers included in kernel)
-#   Intel:  Drivers included in kernel (no action needed)
+# Verify SDDM is properly configured
+print_step "Verifying SDDM display manager configuration..."
+if rpm -q sddm &>/dev/null; then
+    # Ensure SDDM is enabled and set as default
+    if ! sudo systemctl is-enabled sddm.service &>/dev/null; then
+        echo "  Enabling SDDM..."
+        sudo systemctl enable sddm.service
+    fi
+    
+    # Ensure graphical target is set
+    if ! systemctl get-default | grep -q graphical.target; then
+        echo "  Setting graphical.target as default..."
+        sudo systemctl set-default graphical.target
+    fi
+    
+    # Verify KDE session files exist
+    if [ ! -f /usr/share/xsessions/plasma.desktop ] && [ ! -f /usr/share/wayland-sessions/plasma.desktop ]; then
+        print_warning "KDE Plasma session files not found! This may cause login issues."
+        record_failure "SDDM Configuration: Missing KDE session files"
+    else
+        echo "  SDDM and KDE Plasma sessions verified"
+    fi
+else
+    print_warning "SDDM package not installed - display manager may not work"
+    record_failure "SDDM Configuration: Package not installed"
+fi
+
+# ============================================
+# GPU Driver Detection and Installation
+# ============================================
+print_step "Detecting GPU and installing drivers..."
+
+# Detect GPU vendor
+if lspci | grep -i vga | grep -iq "amd\|radeon"; then
+    echo "  Detected AMD GPU"
+    
+    # For AMD RX 7000 series (RDNA 3), ensure latest Mesa and firmware
+    echo "  Installing AMD drivers and firmware..."
+    if ! sudo dnf install -y \
+        mesa-dri-drivers \
+        mesa-vulkan-drivers \
+        vulkan-tools \
+        mesa-libGL \
+        xorg-x11-drv-amdgpu \
+        linux-firmware; then
+        print_error "Failed to install AMD drivers"
+        record_failure "GPU Driver Installation: AMD"
+    fi
+    
+    # Optional: ROCm for compute (usually not needed for gaming/desktop)
+    # sudo dnf install rocm-smi rocm-clinfo 2>/dev/null || true
+    
+elif lspci | grep -i vga | grep -iq "nvidia"; then
+    echo "  Detected NVIDIA GPU"
+    print_warning "NVIDIA drivers require manual installation due to Secure Boot considerations."
+    print_warning "After reboot, run: sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda"
+    print_warning "If Secure Boot is enabled, you'll need to enroll the MOK key on reboot."
+    record_failure "GPU Driver Installation: NVIDIA (manual step required)"
+    
+elif lspci | grep -i vga | grep -iq "intel"; then
+    echo "  Detected Intel GPU (drivers included in kernel)"
+    # Ensure Intel drivers are present
+    sudo dnf install -y mesa-dri-drivers mesa-vulkan-drivers vulkan-tools 2>/dev/null || true
+else
+    print_warning "Could not detect GPU vendor. Skipping driver installation."
+fi
 
 # ============================================
 # STEP 3: Install Flatpak Apps
@@ -145,24 +261,40 @@ fi
 # ============================================
 # STEP 4: Install Snap Apps
 # ============================================
-print_step "Step 4/10: Installing Snap apps (TradingView)..."
+print_step "Step 4/10: Setting up Snap (requires reboot)..."
 
-sudo dnf install -y snapd
-sudo ln -sf /var/lib/snapd/snap /snap 2>/dev/null || true
-sudo systemctl enable --now snapd.socket
+# Install snapd
+if sudo dnf install -y snapd; then
+    echo "  Enabling snapd services..."
+    sudo systemctl enable --now snapd.socket
+    sudo systemctl enable --now snapd.seeded.service 2>/dev/null || true
+    
+    # Create /snap symlink (needed for classic snaps)
+    sudo ln -sf /var/lib/snapd/snap /snap 2>/dev/null || true
+    
+    # Check if snapd is ready (on fresh installs, it won't be)
+    if sudo snap list &>/dev/null 2>&1; then
+        echo "  Snapd is ready, installing TradingView..."
+        if ! sudo snap install tradingview 2>/dev/null; then
+            print_warning "TradingView snap install failed"
+            record_failure "Step 4: Snap app installation"
+        fi
+    else
+        print_warning "Snapd requires a reboot before snaps can be installed."
+        print_warning "After reboot, run: sudo snap install tradingview"
+        # Create a post-reboot reminder file
+        mkdir -p ~/.config
+        cat > ~/.config/dotfiles-post-reboot.txt << 'SNAPEOF'
+To complete snap setup, run:
+  sudo snap install tradingview
 
-# Wait for snapd to be ready (with retries)
-echo "  Waiting for snapd to initialize..."
-for i in {1..30}; do
-    if sudo snap list &>/dev/null; then
-        break
+You can also install other snaps:
+  sudo snap install spotify slack discord
+SNAPEOF
     fi
-    sleep 1
-done
-
-# Install TradingView
-if ! sudo snap install tradingview 2>/dev/null; then
-    print_warning "TradingView snap install failed. After reboot, run: sudo snap install tradingview"
+else
+    print_error "Failed to install snapd"
+    record_failure "Step 4: Snapd installation"
 fi
 
 # ============================================
@@ -421,23 +553,41 @@ else
     done
 fi
 echo ""
-echo "Please LOG OUT and LOG BACK IN for all changes to take effect."
+echo -e "${GREEN}============================================${NC}"
+echo -e "${GREEN}  REBOOT REQUIRED${NC}"
+echo -e "${GREEN}============================================${NC}"
+echo ""
+echo "A reboot is required to complete the installation."
+echo "This ensures:"
+echo "  - GPU drivers are properly loaded"
+echo "  - SDDM display manager is initialized"
+echo "  - Snap packages can be installed (snapd requires reboot)"
+echo ""
+echo -e "${YELLOW}After reboot, complete these steps:${NC}"
+if [ -f ~/.config/dotfiles-post-reboot.txt ]; then
+    echo -e "${YELLOW}  - Install snap packages: sudo snap install tradingview${NC}"
+fi
+echo "  - Sign in: Dropbox, Steam, Discord, WeChat"
+echo "  - Activate PyCharm Pro license"
+echo "  - Configure KDE appearance: System Settings > Appearance"
+echo "  - Run Battle.net: lutris or wine ~/Downloads/Battle.net-Setup.exe"
+echo ""
+echo -e "${YELLOW}IMPORTANT: If system fails to boot:${NC}"
+echo "  1. Boot into recovery mode or press Ctrl+Alt+F3 for TTY"
+echo "  2. Login and run: sudo dnf update --refresh"
+echo "  3. Rebuild initramfs: sudo dracut --force --regenerate-all"
+echo "  4. For AMD GPU issues: sudo dnf reinstall mesa-dri-drivers mesa-vulkan-drivers"
+echo "  5. See TROUBLESHOOTING.md for detailed recovery steps"
 echo ""
 echo "Your setup includes:"
 echo "  - DNF packages (Brave, Warp, Steam, rclone, etc.)"
-echo "  - KDE Plasma apps (Dolphin, Konsole, Spectacle, Kate)"
+echo "  - KDE Plasma with SDDM (X11 + Wayland sessions)"
 echo "  - Flatpak apps (WeChat, Discord, Spotify, Obsidian)"
-echo "  - Snap apps (TradingView)"
+echo "  - Snap support (snapd installed, requires reboot)"
 echo "  - PyCharm Pro (activate license on first run)"
 echo "  - Multiple icon themes (Tela Circle, Papirus, Colloid, etc.)"
-echo "  - Custom GTK themes"
-echo ""
-echo "Manual steps:"
-echo "  - Run Battle.net: lutris or wine ~/Downloads/Battle.net-Setup.exe"
-echo "  - Log into Dropbox, Steam, Discord, WeChat"
-echo "  - Activate PyCharm license"
-echo "  - Configure KDE appearance: System Settings > Appearance"
-echo "  - GPU drivers: Install manually if needed (see script comments)"
+echo "  - Custom GTK themes and 2K+ wallpapers"
+echo "  - GPU drivers (auto-detected and installed)"
 if [ ${#FAILED_STEPS[@]} -gt 0 ]; then
     echo ""
     echo -e "${YELLOW}Note: Review the errors above and manually complete any failed steps.${NC}"

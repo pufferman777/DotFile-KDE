@@ -17,10 +17,12 @@ spectacle
 kate
 ark
 
-# Desktop
+# Desktop (SDDM already installed on Fedora KDE, but ensure all components)
 sddm
 sddm-kcm
+sddm-breeze
 plasma-workspace
+plasma-workspace-wayland
 
 # Productivity
 libreoffice-calc

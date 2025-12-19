@@ -40,16 +40,23 @@ cd ~/DotFile-KDE
 
 ## Manual Steps After Install
 
-1. **Log out and log back in** (required for all changes to take effect)
-2. **GPU Drivers** (if needed):
-   - **NVIDIA**: `sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda`
-     - If Secure Boot is enabled, you'll need to enroll the MOK key on reboot
-   - **AMD**: Drivers included in kernel (optional: `sudo dnf install rocm-smi`)
-   - **Intel**: Drivers included in kernel (no action needed)
+1. **Reboot** (required for all changes to take effect)
+2. **GPU Drivers** (automatically detected and installed):
+   - **AMD RX 7900 XTX**: Script installs Mesa drivers and firmware automatically
+   - **NVIDIA**: Manual installation required - see script output
+   - **Intel**: Drivers included in kernel
+   - **If boot issues occur**: See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 3. **Sign in to apps**: Steam, Discord, WeChat, Dropbox
 4. **Activate PyCharm Pro license**
 5. **Run Battle.net**: `lutris` or `wine ~/Downloads/Battle.net-Setup.exe`
 6. **Configure KDE**: System Settings > Appearance to set icon theme, GTK theme, wallpaper, etc.
+
+## Troubleshooting
+
+If you experience boot issues (black screen, system hang) after running the installer:
+- See **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** for detailed recovery instructions
+- Most common issue: GPU driver conflicts with AMD RX 7900 XTX
+- Quick fix: Boot with `nomodeset` and reinstall Mesa drivers
 
 ## Optional Components
 
