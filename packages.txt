@@ -23,6 +23,13 @@ sddm-kcm
 sddm-breeze
 plasma-workspace
 plasma-workspace-wayland
+kwin
+kwin-wayland
+kwin-x11
+kdecoration
+plasma-systemmonitor
+plasma-discover
+plasma-desktop
 
 # Productivity
 libreoffice-calc

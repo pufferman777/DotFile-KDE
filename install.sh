@@ -131,7 +131,7 @@ print_step "Step 2/10: Installing packages (this takes a while)..."
 mapfile -t PKGS < <(grep -v '^#' "$DOTFILES_DIR/packages.txt" | grep -v '^$')
 
 # Critical packages that must succeed (display manager and core KDE)
-CRITICAL_PKGS=("sddm" "sddm-breeze" "plasma-workspace" "plasma-workspace-wayland" "dolphin" "konsole")
+CRITICAL_PKGS=("sddm" "sddm-breeze" "plasma-workspace" "plasma-workspace-wayland" "kwin" "kdecoration" "plasma-desktop" "dolphin" "konsole")
 
 # Try bulk install first (more efficient)
 if ! sudo dnf install -y --allowerasing --skip-unavailable "${PKGS[@]}"; then
