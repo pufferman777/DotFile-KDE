@@ -138,7 +138,17 @@ EOF
 print_step "Step 3/11: Installing packages (this takes a while)..."
 
 # Filter comments and empty lines, then install
+if [ ! -f "$DOTFILES_DIR/packages.txt" ]; then
+    print_error "packages.txt not found in $DOTFILES_DIR"
+    echo "Cannot continue without package list"
+    exit 1
+fi
+
 mapfile -t PKGS < <(grep -v '^#' "$DOTFILES_DIR/packages.txt" | grep -v '^$')
+
+if [ ${#PKGS[@]} -eq 0 ]; then
+    print_warning "No packages found in packages.txt"
+fi
 
 # Critical packages that must succeed (display manager and core KDE)
 CRITICAL_PKGS=("sddm" "sddm-breeze" "plasma-workspace" "plasma-workspace-wayland" "kwin" "kdecoration" "plasma-desktop" "dolphin" "konsole")
@@ -391,7 +401,10 @@ PYCHARM_DIR="/opt/pycharm"
 if [ ! -d "$PYCHARM_DIR" ]; then
     echo "  Downloading PyCharm Pro..."
     ORIGINAL_DIR="$(pwd)"
-    cd /tmp || exit 1
+    if ! cd /tmp; then
+        print_error "Cannot access /tmp directory"
+        record_failure "Step 6: PyCharm installation (cannot access /tmp)"
+    else
     
     if wget -q --show-progress "$PYCHARM_URL" -O pycharm.tar.gz; then
         sudo mkdir -p /opt
@@ -408,7 +421,10 @@ if [ ! -d "$PYCHARM_DIR" ]; then
         record_failure "Step 5: PyCharm download"
     fi
     
-    cd "$ORIGINAL_DIR" || exit 1
+    if ! cd "$ORIGINAL_DIR"; then
+        print_error "Cannot return to original directory: $ORIGINAL_DIR"
+    fi
+    fi  # Close the /tmp cd check
     
     mkdir -p ~/.local/share/applications
     cat > ~/.local/share/applications/pycharm.desktop << EOF
@@ -447,7 +463,11 @@ else
     
     mkdir -p ~/.local/share/icons
     ORIGINAL_DIR="$(pwd)"
-    cd /tmp || exit 1
+    if ! cd /tmp; then
+        print_error "Cannot access /tmp directory for icon installation"
+        record_failure "Step 8: Icon installation (cannot access /tmp)"
+        return
+    fi
 
 # Tela Circle (all colors)
 if [ ! -d ~/.local/share/icons/Tela-circle-purple-dark ]; then
@@ -563,7 +583,10 @@ if [ ! -d ~/.local/share/icons/Zafiro-Icons-Dark ]; then
 fi
 
     # Mark icons as installed
-    cd "$ORIGINAL_DIR" || exit 1
+    if ! cd "$ORIGINAL_DIR"; then
+        print_warning "Cannot return to original directory: $ORIGINAL_DIR"
+        cd "$DOTFILES_DIR" || cd ~ || true
+    fi
     mkdir -p "$(dirname "$COMPLETION_MARKER")"
     echo "icons_installed" >> "$COMPLETION_MARKER"
 fi
