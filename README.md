@@ -38,6 +38,17 @@ cd ~/DotFile-KDE
 ### Autostart
 - NumLockX
 
+### Convert to PDF (Dolphin right-click)
+Select one or more `.docx`/`.doc`/`.odt` files in Dolphin, right-click, and choose **Convert to PDF**. Each PDF is saved next to its original. Also works from a terminal: `topdf file.docx`.
+
+`install.sh` sets this up automatically. To add it to a machine that's already set up:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pufferman777/DotFile-KDE/master/scripts/install-topdf.sh | bash
+```
+
+Then quit Dolphin (Ctrl+Q) and reopen it.
+
 ## Manual Steps After Install
 
 1. **Reboot** (required for all changes to take effect)
