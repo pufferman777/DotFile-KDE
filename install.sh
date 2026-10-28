@@ -654,6 +654,14 @@ X-GNOME-Autostart-enabled=true
 NoDisplay=true
 EOF
 
+# Dolphin right-click "Convert to PDF" for Word/ODT files
+echo "  Installing Dolphin 'Convert to PDF' action..."
+if [ -f "$DOTFILES_DIR/scripts/install-topdf.sh" ]; then
+    "$DOTFILES_DIR/scripts/install-topdf.sh" || { print_warning "Convert to PDF install failed"; record_failure "Convert to PDF (scripts/install-topdf.sh)"; }
+else
+    print_warning "Convert to PDF install script not found"
+fi
+
 # ============================================
 # DONE
 # ============================================
@@ -708,6 +716,7 @@ echo "  - PyCharm Pro (activate license on first run)"
 echo "  - Multiple icon themes (Tela Circle, Papirus, Colloid, etc.)"
 echo "  - Custom GTK themes and 2K+ wallpapers"
 echo "  - GPU drivers (auto-detected and installed)"
+echo "  - Dolphin right-click \"Convert to PDF\" (also: topdf file.docx)"
 if [ ${#FAILED_STEPS[@]} -gt 0 ]; then
     echo ""
     echo -e "${YELLOW}Note: Review the errors above and manually complete any failed steps.${NC}"
